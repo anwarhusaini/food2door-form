@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: web_service
     name: food2door-bot
     env: python
     region: singapore
@@ -8,6 +8,8 @@ services:
     branch: main
     buildCommand: pip install -r requirements.txt
     startCommand: python bot.py
+    serviceDetails:
+      runtime: python
     envVars:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
@@ -26,17 +28,18 @@ services:
       - key: STUCK_MINUTES
         value: "10"
 
-  - type: cron
+  - type: cron_job
     name: food2door-stuck-reminder
     env: python
     region: singapore
     plan: free
     repo: https://github.com/anwarhusaini/food2door-form
     branch: main
-    rootDir: food2door-form
     buildCommand: pip install -r requirements.txt
     startCommand: python cron_reminder.py
     schedule: "*/2 * * * *"
+    serviceDetails:
+      runtime: python
     envVars:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
