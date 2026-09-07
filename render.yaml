@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: food2door-bot
+    env: python
+    region: singapore
+    plan: free
+    repo: https://github.com/anwarhusaini/food2door-form
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: SUPABASE_URL
+        value: https://gzzlokhsibryyflddikh.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: ORDER_CHAT
+        value: "@f2d_order"
+      - key: KITCHEN_CHAT
+        value: "@f2d_kitchen"
+      - key: DB_PATH
+        value: "/tmp/food2door_bot.db"
+      - key: POLL_INTERVAL
+        value: "10"
+      - key: STUCK_MINUTES
+        value: "10"
+
+  - type: cron
+    name: food2door-stuck-reminder
+    env: python
+    region: singapore
+    plan: free
+    repo: https://github.com/anwarhusaini/food2door-form
+    branch: main
+    rootDir: food2door-form
+    buildCommand: pip install -r requirements.txt
+    startCommand: python cron_reminder.py
+    schedule: "*/2 * * * *"
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: SUPABASE_URL
+        value: https://gzzlokhsibryyflddikh.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: ORDER_CHAT
+        value: "@f2d_order"
+      - key: STUCK_MINUTES
+        value: "10"

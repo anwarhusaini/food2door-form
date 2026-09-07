@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food2Door — All Orders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23f97316'/><path d='M8 22V14l8-3 8 3v8h-5v-5h-6v5h-5z' fill='%23fff'/></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0f0f0;font-family:'Nunito',sans-serif;color:#111;padding:20px 20px 64px;min-height:100vh}
+.container{max-width:660px;margin:0 auto;background:#fff;border-radius:14px 14px 0 0;padding:24px 24px 16px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+
+/* Logo */
+.header{text-align:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #e8e8e8}
+.logo{font-size:22px;font-weight:800;color:#141652;letter-spacing:-.5px}
+.logo span{color:#f97316}
+.sub-header{font-size:13px;color:#888;margin-top:3px}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filter-bar label{font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.3px;margin-right:2px}
+.filter-bar select{font-family:'Nunito',sans-serif;font-size:13px;padding:6px 10px;border:1.5px solid #e0e0e0;border-radius:7px;background:#fff;color:#111}
+.filter-bar select:focus{outline:none;border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.12)}
+
+/* Stats cards */
+#statsPanel{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.stat-card{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:9px 8px;text-align:center}
+.stat-num{font-size:19px;font-weight:800;color:#111;line-height:1.2;text-align:center}
+.stat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999;margin-top:2px;text-align:center}
+
+/* Payment breakdown */
+.payment-breakdown{margin-top:14px;padding:10px 12px;background:#fafafa;border:1px solid #eee;border-radius:8px}
+.breakdown-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#999;margin-bottom:7px;text-align:center}
+.breakdown-bar{display:flex;height:22px;border-radius:5px;overflow:hidden;background:#eee}
+.breakdown-segment{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;padding:0 3px}
+.breakdown-segment.cash{background:#f97316}
+.breakdown-segment.bank{background:#141652}
+.breakdown-segment.qr{background:#065f46}
+
+/* Orders table */
+.orders-table{width:100%;border-collapse:collapse;font-size:13px}
+.orders-table th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;color:#999;padding:7px 8px;border-bottom:1.5px solid #eee;letter-spacing:.5px}
+.orders-table th.num{text-align:center}
+.orders-table td{padding:8px 8px;border-bottom:1px solid #f5f5f5;vertical-align:middle}
+.orders-table td .customer{color:#111;font-weight:600}
+.orders-table td .type{color:#888;font-size:12px}
+.orders-table td .date{color:#888;font-size:11px}
+.orders-table td .actions{text-align:right}
+.orders-table td .actions a{color:#141652;font-weight:700;text-decoration:none;font-size:12px}
+.orders-table td .actions a:hover{text-decoration:underline}
+
+.empty-state{text-align:center;padding:28px 20px;color:#999;font-size:14px;font-weight:600}
+
+/* Flash */
+.flash{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px;animation:fadeOut 4.5s forwards}
+.flash.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.flash.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.flash.info{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+.showFlash{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:1000;animation:fadeOut 4.5s forwards}
+@keyframes fadeOut{0%,70%{opacity:1}100%{opacity:0}}
+
+/* Status badges */
+.status-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.3px;border:1px solid #ddd;background:#fff;color:#888}
+.status-badge.new{background:#fef3c7;color:#92400e;border-color:#fcd34d}
+.status-badge.prep{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.status-badge.out{background:#ede9fe;color:#5b21b6;border-color:#c4b5fd}
+.status-badge.done{background:#d1fae5;color:#065f46;border-color:#6ee7b7}
+.status-badge.packed{background:#fff7ed;color:#9a3412;border-color:#fdba74}
+
+/* Sticky nav bar — OUTSIDE container so it sticks to viewport bottom */
+.nav-bar-outer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;box-shadow:0 -1px 4px rgba(0,0,0,.04);padding:5px 0;justify-content:center;z-index:999}
+.nav-bar-inner{display:flex;gap:4px;max-width:660px;margin:0 auto}
+.nav-btn{flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#888;text-decoration:none;border-radius:7px;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;outline:none}
+.nav-btn:hover{background:#f5f5f5;color:#111}
+.nav-btn.active{background:#f97316;color:#fff;box-shadow:0 2px 5px rgba(249,115,22,.25)}
+
+@media(max-width:480px){#statsPanel{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">Food<span>2Door</span></div>
+    <div class="sub-header">All Orders</div>
+  </div>
+
+  <div id="flashContainer"></div><div id="errorContainer" style="display:none;position:fixed;top:10px;left:10px;right:10px;z-index:9999;background:#fee;border:2px solid #f00;padding:10px;font-size:12px;max-height:200px;overflow:auto;"></div>
+
+  <div class="filter-bar">
+    <label>Status</label>
+    <select id="filterStatus" onchange="loadOrders()">
+      <option value="all">All</option>
+      <option value="New">New</option>
+      <option value="Prep">Prep</option>
+      <option value="Packed">Packed</option>
+      <option value="Out">Out for Delivery</option>
+      <option value="Done">Done</option>
+    </select>
+    <label>Payment</label>
+    <select id="filterPayment" onchange="loadOrders()">
+      <option value="all">All</option>
+      <option value="Cash">Cash</option>
+      <option value="Bank Transfer">Bank Transfer</option>
+      <option value="QR Pay">QR Pay</option>
+    </select>
+  </div>
+
+  <div id="statsPanel"></div>
+  <div id="ordersList"></div>
+</div>
+
+<div class="nav-bar-outer">
+  <div class="nav-bar-inner">
+    <a href="/" class="nav-btn">🏠 Take Order</a>
+    <a href="/all" class="nav-btn active">📋 All Orders</a>
+    <a href="/report" class="nav-btn">📈 Month Report</a>
+    <a href="/settings" class="nav-btn">⚙️ Settings</a>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var SUPABASE_URL='https://gzzlokhsibryyflddikh.supabase.co';
+
+var supabaseUrl='https://gzzlokhsibryyflddikh.supabase.co';
+var supabaseAnonKey='sb_publishable_5y_iBXJ4OTMSFP9l0QcWsg_hczQnD2I';
+
+// Supabase REST API helper - no CDN dependency
+function supabaseFetch(path, options){
+  var url = supabaseUrl + '/rest/v1' + path;
+  var headers = {
+    'apikey': supabaseAnonKey,
+    'Authorization': 'Bearer ' + supabaseAnonKey,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+  if(options && options.method){
+    Object.assign(headers, options.headers || {});
+  }
+  return fetch(url, {
+    method: options ? options.method : 'GET',
+    headers: headers,
+    body: options && options.body ? JSON.stringify(options.body) : undefined
+  }).then(function(r){
+    return r.json().then(function(data){
+      if(!r.ok){
+        var errMsg = data.error ? data.error.message : 'Request failed (HTTP ' + r.status + ')';
+        return Promise.reject({message: errMsg, status: r.status});
+      }
+      return data;
+    });
+  });
+}
+
+// Supabase-style API wrappers
+var supabase = {
+  from: function(tableName){
+    var tablePath = '/' + tableName;
+    return {
+      select: function(columns){
+        var path = tablePath + '?select=' + (columns || '*');
+        return {
+          gte: function(col, val){ path += '&' + col + '=gte.' + encodeURIComponent(val); return this; },
+          lte: function(col, val){ path += '&' + col + '=lte.' + encodeURIComponent(val); return this; },
+          eq: function(col, val){ path += '&' + col + '=eq.' + encodeURIComponent(val); return this; },
+          order: function(col, opts){ path += '&order=' + col + ':' + (opts && opts.ascending === false ? 'desc' : 'asc'); return this; },
+          limit: function(n){ path += '&limit=' + n; return this; },
+          single: function(){ 
+            return supabaseFetch(path).then(function(d){ 
+              return {data: d && d.length > 0 ? d[0] : null, error: d && d.length === 0 ? {message:'Not found'} : null}; 
+            }); 
+          },
+          then: function(resolve, reject){ 
+            return supabaseFetch(path)
+              .then(function(d){ resolve({data: d, error: null}); })
+              .catch(function(e){ reject(e); });
+          }
+        };
+      },
+      insert: function(rows){
+        return supabaseFetch(tablePath, {method: 'POST', body: rows})
+          .then(function(d){ return {data: d, error: null}; })
+          .catch(function(e){ return Promise.reject(e); });
+      },
+      update: function(data){
+        return {
+          eq: function(col, val){
+            var path = tablePath;
+            var body = {};
+            body[col] = val;
+            for(var k in data) body[k] = data[k];
+            return supabaseFetch(path, {method: 'PATCH', body: body})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          },
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      },
+      delete: function(){
+        return { 
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      }
+    };
+  }
+};
+
+console.log('Supabase REST API ready');
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+
+function statusClass(s){var m={'New':'new','Prep':'prep','Packed':'packed','Out':'out','Done':'done'};return m[s]||'new'}
+
+function loadOrders(){
+  console.log('loadOrders called, supabase:', typeof supabase);
+  var sf=document.getElementById('filterStatus').value;
+  var pf=document.getElementById('filterPayment').value;
+
+  if(!supabase){
+    document.getElementById('ordersList').innerHTML='<div class="empty-state"><div class="icon">⚠️</div>Supabase not configured. Go to <a href="/settings" style="color:#f97316">Settings</a> to connect.</div>';
+    document.getElementById('statsPanel').innerHTML='';
+    return;
+  }
+
+  var condition=supabase.from('orders').select('*').order('created_at','desc').limit(100);
+  if(sf!=='all')condition=condition.eq('status',sf);
+  if(pf!=='all')condition=condition.eq('payment_method',pf);
+
+  condition.then(function(r){
+    if(r.error){console.error('Supabase error:',r.error);return;}
+    var rows=r.data||[];
+    renderStats(rows);
+    renderOrders(rows);
+  }).catch(function(e){console.error('Supabase error:',e);});
+}
+
+function renderStats(rows){
+  var total=rows.length;
+  var revenue=rows.reduce(function(s,r){return s+parseFloat(r.total||0);},0);
+  var cash=rows.filter(function(r){return r.payment_method==='Cash';}).length;
+  var btr=rows.filter(function(r){return r.payment_method==='Bank Transfer';}).length;
+  var qr=rows.filter(function(r){return r.payment_method==='QR Pay';}).length;
+  var newCount=rows.filter(function(r){return r.status==='New';}).length;
+  var prepCount=rows.filter(function(r){return r.status==='Prep';}).length;
+  var outCount=rows.filter(function(r){return r.status==='Out';}).length;
+  var doneCount=rows.filter(function(r){return r.status==='Done';}).length;
+  var packedCount=rows.filter(function(r){return r.status==='Packed';}).length;
+
+  document.getElementById('statsPanel').innerHTML=
+    '<div class="stat-card"><div class="stat-num">'+total+'</div><div class="stat-lbl">Total Orders</div></div>'+
+    '<div class="stat-card"><div class="stat-num">RM '+(revenue>0?revenue.toFixed(2):'0.00')+'</div><div class="stat-lbl">Revenue</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:#f97316">'+newCount+'</div><div class="stat-lbl">New</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:#1e40af">'+prepCount+'</div><div class="stat-lbl">Prep</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:#5b21b6">'+outCount+'</div><div class="stat-lbl">Out</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:#065f46">'+doneCount+'</div><div class="stat-lbl">Done</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:#141652">RM '+(parseFloat(revenue/total||0).toFixed(2))+'</div><div class="stat-lbl">Avg Order</div></div>'+
+    '<div class="payment-breakdown"><div class="breakdown-label">Payment Methods</div>'+
+    '<div class="breakdown-bar">'+
+      '<div class="breakdown-segment cash" style="width:'+(total?Math.round(cash/total*100):0)+'%"><span>Cash '+cash+'</span></div>'+
+      '<div class="breakdown-segment bank" style="width:'+(total?Math.round(btr/total*100):0)+'%"><span>Bank '+btr+'</span></div>'+
+      '<div class="breakdown-segment qr" style="width:'+(total?Math.round(qr/total*100):0)+'%"><span>QR '+qr+'</span></div>'+
+    '</div></div>';
+}
+
+function renderOrders(rows){
+  var list=document.getElementById('ordersList');
+  if(rows.length===0){
+    list.innerHTML='<div class="empty-state"><div class="icon">📭</div>No orders found.</div>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    var createdAt=r.created_at?new Date(String(r.created_at)).toLocaleString('en-MY',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+    var itemsCount=r.items?r.items.length:0;
+    var totalVal=(parseFloat(r.total)||0).toFixed(2);
+    var itSummary = itemsCount > 0
+      ? r.items.slice(0,2).map(function(it){return it.name+' x'+it.qty;}).join(', ')+(itemsCount>2?' +...':'') || ''
+      : '';
+    html+='<tr>'+
+      '<td><div class="customer">'+esc(r.customer_name||'—')+'</div><div class="type">'+esc(r.payment_method||'—')+'</div></td>'+
+      '<td class="date">'+createdAt+'</td>'+
+      '<td class="num"><span class="status-badge '+(statusClass(r.status)||'new')+'">'+esc(r.status||'New')+'</span></td>'+
+      '<td>'+(itSummary||'<span style="color:#999">—</span>')+'</td>'+
+      '<td class="num">RM '+totalVal+'</td>'+
+      '<td class="actions">'+
+        '<a href="/order?id='+esc(r.id)+'">👁 View</a>'+
+        (r.status!=='New'?' <a href="/order?id='+esc(r.id)+'&status=New">↺ Reset</a>':'')+
+      '</td>'+
+    '</tr>';
+  }
+  list.innerHTML='<table class="orders-table"><thead><tr><th>Customer</th><th class="num">Time</th><th class="num">Status</th><th>Items</th><th class="num">Total</th><th class="num"></th></tr></thead><tbody>'+html+'</tbody></table>';
+}
+
+window.loadOrders=loadOrders;
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){loadOrders();});
+else loadOrders();
+
+})();
+</script>
+</body>
+</html>

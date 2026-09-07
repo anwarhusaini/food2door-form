@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food2Door — Order Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0f0f0;font-family:'Nunito',sans-serif;color:#111;padding:20px;min-height:100vh}
+.container{max-width:660px;margin:0 auto;background:#fff;border-radius:14px 14px 0 0;padding:20px 20px 12px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.back-link{display:inline-flex;align-items:center;gap:4px;color:#141652;text-decoration:none;font-size:13px;font-weight:700;margin-bottom:12px}
+.back-link:hover{text-decoration:underline}
+.header{text-align:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:20px;font-weight:800;color:#141652;letter-spacing:-.3px}
+.logo span{color:#f97316}
+.sub-header{font-size:13px;color:#888;margin-top:3px;text-align:center}
+.order-badge{background:#141652;color:#fff;padding:6px 14px;border-radius:6px;font-weight:700;font-size:13px}
+.section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#888;margin:14px 0 8px;display:flex;align-items:center;gap:7px}
+.section-title .emoji{font-size:14px;text-transform:none}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
+.detail-item{display:flex;flex-direction:column;gap:2px}
+.detail-item.full{grid-column:1/-1}
+.detail-label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px}
+.detail-value{font-size:15px;color:#111;font-weight:500}
+.detail-value.big{font-size:20px;font-weight:800;color:#141652;letter-spacing:-.2px}
+.status-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.3px;border:1px solid #ddd;background:#fff;color:#888}
+.status-badge.new{background:#fef3c7;color:#92400e;border-color:#fcd34d}
+.status-badge.prep{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.status-badge.out{background:#ede9fe;color:#5b21b6;border-color:#c4b5fd}
+.status-badge.done{background:#d1fae5;color:#065f46;border-color:#6ee7b7}
+.status-badge.packed{background:#fff7ed;color:#9a3412;border-color:#fdba74}
+table.items-table{width:100%;border-collapse:collapse;font-size:13px}
+table.items-table th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;color:#999;padding:5px 8px;border-bottom:1.5px solid #eee;letter-spacing:.5px}
+table.items-table th.num{text-align:center}
+table.items-table td{padding:7px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+table.items-table td.num{text-align:center}
+table.items-table td .total-cell{text-align:right;font-weight:700;color:#141652}
+.empty-state{text-align:center;padding:20px;color:#999;font-size:14px;font-weight:600}
+.btn-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:10px 18px;border:none;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s}
+.btn-primary{background:#141652;color:#fff;flex:1}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-secondary{background:#b5b5b5;color:#111}
+.btn-secondary:hover{filter:brightness(1.15)}
+.btn-danger{background:#fff;color:#dc2626;border:1.5px solid #fca5a5;flex:0 0 auto}
+.btn-danger:hover{background:#fef2f2}
+.nav-bar-outer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;box-shadow:0 -1px 4px rgba(0,0,0,.04);padding:5px 0;z-index:999}
+.nav-bar-inner{display:flex;gap:4px;max-width:660px;margin:0 auto}
+.nav-btn{cursor:pointer;flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#888;text-decoration:none;border-radius:7px;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;outline:none}
+.nav-btn:hover{background:#f5f5f5;color:#111}
+.nav-btn.active{background:#f97316;color:#fff;box-shadow:0 2px 5px rgba(249,115,22,.25)}
+@media(max-width:480px){.detail-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/all" class="back-link">← Back to All Orders</a>
+
+  <div class="header">
+    <div>
+      <div class="logo">Food2<span>Door</span></div>
+      <div class="sub-header">Order Detail</div>
+    </div>
+    <div class="order-badge" id="orderBadge">—</div>
+  </div>
+
+  <div class="section-title"><span class="emoji">📋</span> Order Info</div>
+  <div class="detail-grid" id="orderInfo">
+    <div class="empty-state">Loading...</div>
+  </div>
+
+  <div class="section-title"><span class="emoji">🍽️</span> Order Items</div>
+  <table class="items-table" id="itemsTable">
+    <thead><tr><th>Item Name</th><th class="num">Qty</th><th class="num">Unit Price (RM)</th><th class="num">Total (RM)</th></tr></thead>
+    <tbody id="itemsBody"><tr><td colspan="4" class="empty-state">No items</td></tr></tbody>
+  </table>
+
+  <div class="section-title"><span class="emoji">⚡</span> Status Actions</div>
+  <div class="btn-row" id="actionsRow">
+    <button class="btn btn-primary" onclick="updateStatus('Prep')">Prep →</button>
+    <button class="btn btn-secondary" onclick="updateStatus('Packed')">Packed</button><button class="btn btn-secondary" onclick="updateStatus('Out')">Out for Delivery</button>
+    <button class="btn btn-secondary" onclick="updateStatus('Done')">Done</button>
+  </div>
+  <div class="btn-row" style="margin-top:6px">
+    <button class="btn btn-danger" onclick="deleteOrder()">🗑 Delete Order</button>
+  </div>
+
+  <div class="nav-bar-outer">
+    <div class="nav-bar-inner">
+      <a href="/" class="nav-btn active">🏠 Take Order</a>
+      <a href="/all" class="nav-btn">📋 All Orders</a>
+      <a href="/report" class="nav-btn">📈 Month Report</a>
+      <a href="/settings" class="nav-btn">⚙️ Settings</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+"use strict";
+
+var SUPABASE_URL='https://gzzlokhsibryyflddikh.supabase.co';
+
+var supabaseUrl='https://gzzlokhsibryyflddikh.supabase.co';
+var supabaseAnonKey='sb_publishable_5y_iBXJ4OTMSFP9l0QcWsg_hczQnD2I';
+
+// Supabase REST API helper - no CDN dependency
+function supabaseFetch(path, options){
+  var url = supabaseUrl + '/rest/v1' + path;
+  var headers = {
+    'apikey': supabaseAnonKey,
+    'Authorization': 'Bearer ' + supabaseAnonKey,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+  if(options && options.method){
+    Object.assign(headers, options.headers || {});
+  }
+  return fetch(url, {
+    method: options ? options.method : 'GET',
+    headers: headers,
+    body: options && options.body ? JSON.stringify(options.body) : undefined
+  }).then(function(r){
+    return r.json().then(function(data){
+      if(!r.ok){
+        var errMsg = data.error ? data.error.message : 'Request failed (HTTP ' + r.status + ')';
+        return Promise.reject({message: errMsg, status: r.status});
+      }
+      return data;
+    });
+  });
+}
+
+// Supabase-style API wrappers
+var supabase = {
+  from: function(tableName){
+    var tablePath = '/' + tableName;
+    return {
+      select: function(columns){
+        var path = tablePath + '?select=' + (columns || '*');
+        return {
+          gte: function(col, val){ path += '&' + col + '=gte.' + encodeURIComponent(val); return this; },
+          lte: function(col, val){ path += '&' + col + '=lte.' + encodeURIComponent(val); return this; },
+          eq: function(col, val){ path += '&' + col + '=eq.' + encodeURIComponent(val); return this; },
+          order: function(col, opts){ path += '&order=' + col + ':' + (opts && opts.ascending === false ? 'desc' : 'asc'); return this; },
+          limit: function(n){ path += '&limit=' + n; return this; },
+          single: function(){ 
+            return supabaseFetch(path).then(function(d){ 
+              return {data: d && d.length > 0 ? d[0] : null, error: d && d.length === 0 ? {message:'Not found'} : null}; 
+            }); 
+          },
+          then: function(resolve, reject){ 
+            return supabaseFetch(path)
+              .then(function(d){ resolve({data: d, error: null}); })
+              .catch(function(e){ reject(e); });
+          }
+        };
+      },
+      insert: function(rows){
+        return supabaseFetch(tablePath, {method: 'POST', body: rows})
+          .then(function(d){ return {data: d, error: null}; })
+          .catch(function(e){ return Promise.reject(e); });
+      },
+      update: function(data){
+        return {
+          eq: function(col, val){
+            var path = tablePath;
+            var body = {};
+            body[col] = val;
+            for(var k in data) body[k] = data[k];
+            return supabaseFetch(path, {method: 'PATCH', body: body})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          },
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      },
+      delete: function(){
+        return { 
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      }
+    };
+  }
+};
+
+console.log('Supabase REST API ready');
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+function statusClass(s){var m={'New':'new','Prep':'prep','Packed':'packed','Out':'out','Done':'done'};return m[s]||'new'}
+function getFallbackOrder(id){
+  var all=[];
+  try{all=JSON.parse(localStorage.getItem('fd_orders_fallback')||'[]');}catch(e){}
+  for(var i=0;i<all.length;i++){if(all[i].id===id)return all[i];}
+  return null;
+}
+
+function init(){
+  console.log('Order init() called, URL:', window.location.href);
+  console.log('window.supabase:', typeof window.supabase);
+  var params={};
+  var search=window.location.search;
+  var pairs=search.slice(1).split('&');
+  for(var i=0;i<pairs.length;i++){
+    var kv=pairs[i].split('=');
+    if(kv.length===2)params[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]);
+  }
+  var id=params.id||null;
+  try{id=id||sessionStorage.getItem('viewing_order_id');}catch(e){}
+  if(id){loadOrder(id);}
+  else{
+    document.getElementById('orderInfo').innerHTML='<div class="empty-state">No order ID provided. <a href="/all" style="color:#141652">Go to All Orders</a></div>';
+    document.getElementById('itemsBody').innerHTML='<tr><td colspan="4" class="empty-state">—</td></tr>';
+    document.getElementById('actionsRow').innerHTML='<div class="empty-state" style="padding:10px">Select an order to view details.</div>';
+  }
+}
+
+function loadOrder(id){
+  console.log('loadOrder called:', id, 'supabase:', typeof supabase);
+  if(!supabase){
+    var o=getFallbackOrder(id);
+    if(o){currentOrder=o;renderOrder(o);}
+    else{showError('Order not found. <a href="/all" style="color:#141652">Go back</a>');}
+    return;
+  }
+  supabase.from('orders').select('*').eq('id',id).single()
+    .then(function(resp){
+      if(resp.error){
+        console.error('Supabase error:', resp.error);
+        showError('Error: '+(resp.error.message||'Unknown error')+' <a href="/all" style="color:#141652">Go back</a>');
+        return;
+      }
+      if(!resp.data){
+        showError('Order not found. <a href="/all" style="color:#141652">Go back</a>');
+        return;
+      }
+      currentOrder=resp.data;
+      renderOrder(resp.data);
+    })
+    .catch(function(err){
+      console.error('Load error:', err);
+      showError('Error loading order: '+(err.message||'Unknown')+' <a href="/all" style="color:#141652">Go back</a>');
+    });
+}
+
+function showError(msg){
+  document.getElementById('orderInfo').innerHTML='<div class="empty-state">'+msg+'</div>';
+  document.getElementById('itemsBody').innerHTML='<tr><td colspan="4" class="empty-state">—</td></tr>';
+  document.getElementById('actionsRow').innerHTML='<div class="empty-state" style="padding:10px">—</div>';
+}
+
+function renderOrder(o){
+  document.getElementById('orderBadge').textContent=String(o.order_number||'—');
+
+  var info=document.getElementById('orderInfo');
+  var addr=o.delivery_address||'— (Pickup)';
+  var notes=o.notes||'—';
+  var takenBy=o.taken_by||'—';
+  var createdAt=o.created_at?new Date(String(o.created_at)).toLocaleString('en-MY',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+
+  info.innerHTML=
+    '<div class="detail-item"><span class="detail-label">Customer</span><span class="detail-value">'+esc(String(o.customer_name||'—'))+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">Phone</span><span class="detail-value">'+esc(String(o.phone||'—'))+'</span></div>'+
+    '<div class="detail-item full"><span class="detail-label">Delivery Address</span><span class="detail-value">'+esc(addr)+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">Order Type</span><span class="detail-value">'+esc(String(o.order_type||'—'))+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">Payment</span><span class="detail-value">'+esc(String(o.payment_method||'—'))+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">Status</span><span class="status-badge status-'+statusClass(o.status)+'">'+esc(o.status||'New')+'</span></div>'+
+    '<div class="detail-item full"><span class="detail-label">Notes</span><span class="detail-value">'+esc(notes)+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">Taken By</span><span class="detail-value">'+esc(takenBy)+'</span></div>'+
+    '<div class="detail-item"><span class="detail-label">Date</span><span class="detail-value">'+createdAt+'</span></div>';
+
+  var items=o.items||[];
+  var tbody=document.getElementById('itemsBody');
+  if(items.length===0){
+    tbody.innerHTML='<tr><td colspan="4" class="empty-state">No items in this order</td></tr>';
+  }else{
+    var html='';
+    for(var i=0;i<items.length;i++){
+      var it=items[i];
+      html+='<tr>'+
+        '<td>'+esc(it.name)+'</td>'+
+        '<td class="num">'+it.qty+'</td>'+
+        '<td class="num">RM '+(parseFloat(it.price||0)).toFixed(2)+'</td>'+
+        '<td class="total-cell">RM '+(parseFloat(it.total||0)).toFixed(2)+'</td>'+
+      '</tr>';
+    }
+    tbody.innerHTML=html;
+  }
+}
+
+function updateStatus(newStatus){
+  if(!currentOrder)return;
+  if(!confirm('Mark this order as "'+newStatus+'"?'))return;
+  var orderId=currentOrder.id;
+
+  if(!supabase){
+    var all=[];
+    try{all=JSON.parse(localStorage.getItem('fd_orders_fallback')||'[]');}catch(e){}
+    for(var i=0;i<all.length;i++){
+      if(all[i].id===orderId){
+        all[i].status=newStatus;
+        try{localStorage.setItem('fd_orders_fallback',JSON.stringify(all));}catch(e){}
+        currentOrder.status=newStatus;
+        renderOrder(currentOrder);
+        showFlash('✅ Order marked as '+newStatus,'success');
+        return;
+      }
+    }
+    return;
+  }
+
+  supabase.from('orders').update({status:newStatus}).eq('id',orderId)
+    .then(function(resp){
+      if(resp.error)throw resp.error;
+      currentOrder.status=newStatus;
+      renderOrder(currentOrder);
+      showFlash('✅ Order marked as '+newStatus,'success');
+    })
+    .catch(function(err){showFlash('Error: '+(err.message||'unknown'),'error');});
+}
+
+function deleteOrder(){
+  if(!currentOrder)return;
+  if(!confirm('Delete this order permanently? This cannot be undone.'))return;
+  var orderId=currentOrder.id;
+
+  if(!supabase){
+    var all=[];
+    try{all=JSON.parse(localStorage.getItem('fd_orders_fallback')||'[]');}catch(e){}
+    var remaining=[];
+    for(var i=0;i<all.length;i++){if(all[i].id!==orderId)remaining.push(all[i]);}
+    try{localStorage.setItem('fd_orders_fallback',JSON.stringify(remaining));}catch(e){}
+    showFlash('🗑 Order deleted','success');
+    setTimeout(function(){window.location.href='/all';},1000);
+    return;
+  }
+
+  supabase.from('orders').delete().eq('id',orderId)
+    .then(function(resp){
+      if(resp.error)throw resp.error;
+      showFlash('🗑 Order deleted','success');
+      setTimeout(function(){window.location.href='/all';},1000);
+    })
+    .catch(function(err){showFlash('Error deleting: '+(err.message||'unknown'),'error');});
+}
+
+function showFlash(msg,type){
+  var existing=document.querySelector('.flash');
+  if(existing)existing.remove();
+  var el=document.createElement('div');
+  el.className='flash '+type;
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},3000);
+}
+
+window.updateStatus=updateStatus;
+window.deleteOrder=deleteOrder;
+window.showFlash=showFlash;
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+// Set active nav tab based on current page
+(function(){
+  var path=window.location.pathname;
+  var btns=document.querySelectorAll('.nav-btn');
+  for(var i=0;i<btns.length;i++){btns[i].classList.remove('active');}
+  if(path==='/' || path==='/order'){btns[0].classList.add('active');}
+  else if(path==='/all'){btns[1].classList.add('active');}
+  else if(path==='/report'){btns[2].classList.add('active');}
+  else if(path==='/settings'){btns[3].classList.add('active');}
+})();
+</script>
+</body>
+</html>

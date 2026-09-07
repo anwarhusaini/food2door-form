@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food2Door — Month Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0f0f0;font-family:'Nunito',sans-serif;color:#111;padding:20px;min-height:100vh}
+.container{max-width:660px;margin:0 auto;background:#fff;border-radius:14px 14px 0 0;padding:24px 24px 16px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.header{text-align:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #e8e8e8}
+.logo{font-size:22px;font-weight:800;color:#141652;letter-spacing:-.5px}
+.logo span{color:#f97316}
+.sub-header{font-size:13px;color:#888;margin-top:3px}
+.filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.filter-bar label{font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.3px;margin-right:2px}
+.filter-bar select{font-family:'Nunito',sans-serif;font-size:13px;padding:6px 10px;border:1.5px solid #e0e0e0;border-radius:7px;background:#fff;color:#111}
+.filter-bar select:focus{outline:none;border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.12)}
+.btn-row{display:flex;gap:10px;margin-top:14px}
+.btn{padding:10px 18px;border:none;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s}
+.btn-primary{background:#141652;color:#fff;flex:1}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-secondary{background:#b5b5b5;color:#111}
+.btn-secondary:hover{filter:brightness(1.15)}
+.section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#888;margin:14px 0 8px;display:flex;align-items:center;gap:7px}
+.section-title .emoji{font-size:14px;text-transform:none}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.stat-card{background:#f5f5f5;border-radius:8px;padding:12px 8px;text-align:center}
+.stat-icon{font-size:20px;margin-bottom:4px}
+.stat-num{font-size:22px;font-weight:800;color:#141652;letter-spacing:-.3px;line-height:1.2}
+.stat-label{font-size:11px;color:#888;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.stat-card.highlight{background:#f0fdf4;border:1px solid #bbf7d0}
+.stat-card.highlight .stat-num{color:#065f46}
+.daily-item{margin-bottom:10px;padding:8px 10px;background:#f5f5f5;border-radius:6px}
+.daily-item .daily-header{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.daily-item .daily-date{font-weight:700;color:#141652}
+.daily-item .daily-meta{color:#888}
+.bar-container{background:#e0e0e0;border-radius:4px;height:8px;margin-bottom:4px;overflow:hidden}
+.bar{height:100%;border-radius:4px;background:#f97316}
+.top-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #e8e8e8}
+.top-item .rank{width:24px;font-weight:800;color:#888;font-size:13px;text-align:center}
+.top-item .name{flex:1;font-weight:700;color:#141652}
+.top-item .qty{font-size:13px;color:#888}
+.top-item .revenue{font-weight:700;color:#111;margin-left:auto}
+table.report-table{width:100%;border-collapse:collapse;font-size:13px}
+table.report-table th{text-align:left;font-size:10px;font-weight:800;text-transform:uppercase;color:#999;padding:6px 8px;border-bottom:1.5px solid #eee;letter-spacing:.5px}
+table.report-table th.num{text-align:right}
+table.report-table td{padding:8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+table.report-table td.num{text-align:right;font-weight:700;color:#141652}
+table.report-table td .date-cell{color:#888;font-size:11px}
+.empty-state{text-align:center;padding:32px 20px;color:#999;font-size:14px;font-weight:600}
+.empty-state .icon{font-size:28px;margin-bottom:6px}
+.nav-bar-outer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;box-shadow:0 -1px 4px rgba(0,0,0,.04);padding:5px 0;justify-content:center;z-index:999}
+.nav-bar-inner{display:flex;gap:4px;max-width:660px;margin:0 auto}
+.nav-btn{cursor:pointer;flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#888;text-decoration:none;border-radius:7px;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;outline:none}
+.nav-btn:hover{background:#f5f5f5;color:#111}
+.nav-btn.active{background:#f97316;color:#fff;box-shadow:0 2px 5px rgba(249,115,22,.25)}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
+/* Stats cards */
+.stat-card{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:10px 8px;text-align:center}
+.stat-card.highlight{background:#fff;border-color:#f97316;border-width:1.5px}
+.stat-icon{font-size:16px;margin-bottom:2px}
+.stat-num{font-size:20px;font-weight:800;color:#111;line-height:1.2}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#999;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">Food2<span>Door</span></div>
+    <div class="sub-header">Month Report — <span id="displayPeriod"></span></div>
+  </div>
+
+  <div class="filter-bar">
+    <label for="reportMonth">Month</label>
+    <select id="reportMonth">
+      <option value="">This Month</option>
+    </select>
+    <button class="btn btn-primary" onclick="loadReport()" style="padding:6px 14px;font-size:13px;flex:0 0 auto">Go</button>
+    <button class="btn btn-secondary" onclick="resetMonth()" style="padding:6px 14px;font-size:13px;flex:0 0 auto">Reset</button>
+  </div>
+
+  <div class="section-title"><span class="emoji">📊</span> Monthly Summary</div>
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card highlight"><div class="stat-icon">📦</div><div class="stat-num" id="statOrders">0</div><div class="stat-label">Total Orders</div></div>
+    <div class="stat-card highlight"><div class="stat-icon">💰</div><div class="stat-num" id="statRevenue">RM 0</div><div class="stat-label">Total Revenue</div></div>
+    <div class="stat-card"><div class="stat-icon">🚚</div><div class="stat-num" id="statDelivery">0</div><div class="stat-label">Deliveries</div></div>
+    <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-num" id="statPickup">0</div><div class="stat-label">Pickups</div></div>
+  </div>
+
+  <div class="section-title"><span class="emoji">📈</span> Key Metrics</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">💵</div><div class="stat-num" id="statAvgOrder">RM 0</div><div class="stat-label">Avg Order Value</div></div>
+    <div class="stat-card"><div class="stat-icon">🏷️</div><div class="stat-num" id="statDiscount">RM 0</div><div class="stat-label">Total Discounts</div></div>
+    <div class="stat-card"><div class="stat-icon">💳</div><div class="stat-num" id="statCash">RM 0</div><div class="stat-label">Cash Orders</div></div>
+    <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-num" id="statSubtotal">RM 0</div><div class="stat-label">Subtotal</div></div>
+  </div>
+
+  <div class="section-title"><span class="emoji">📅</span> Daily Breakdown <span id="daysCount" style="font-weight:400;text-transform:none;color:#aaa;font-size:12px">0 days</span></div>
+  <div id="dailyBreakdown"><div class="empty-state">No data for this period.</div></div>
+
+  <div class="section-title"><span class="emoji">🏆</span> Top Items</div>
+  <div id="topItems"><div class="empty-state">No items sold this period.</div></div>
+
+  <div class="section-title"><span class="emoji">📋</span> All Orders <span id="orderCount" style="font-weight:400;text-transform:none;color:#aaa;font-size:12px">0 orders</span></div>
+
+  <div class="section-title"><span class="emoji">⏱️</span> Efficiency Tracker</div>
+  <div id="efficiencyPanel" style="margin-bottom:14px"></div>
+  <table class="report-table">
+    <thead><tr><th>Order #</th><th>Customer</th><th>Type</th><th class="num">Total</th><th>Status</th><th>Date</th></tr></thead>
+    <tbody id="ordersBody">
+      <tr><td colspan="6" class="empty-state"><div class="icon">📭</div>No orders found for this period.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="exportCSVFn()">📥 Download Report (CSV)</button>
+    <button class="btn btn-primary" onclick="exportFullCSVFn()">📊 Download Full CSV</button>
+  </div>
+
+  <div class="nav-bar-outer">
+    <div class="nav-bar-inner">
+    <a href="/" class="nav-btn">🏠 Take Order</a>
+    <a href="/all" class="nav-btn">📋 All Orders</a>
+    <a href="/report" class="nav-btn active">📈 Month Report</a>
+    <a href="/settings" class="nav-btn">⚙️ Settings</a>
+    </div>
+
+    <script>
+    (function() {
+    "use strict";
+
+var SUPABASE_URL='https://gzzlokhsibryyflddikh.supabase.co';
+
+var supabaseUrl='https://gzzlokhsibryyflddikh.supabase.co';
+var supabaseAnonKey='sb_publishable_5y_iBXJ4OTMSFP9l0QcWsg_hczQnD2I';
+
+// Supabase REST API helper - no CDN dependency
+function supabaseFetch(path, options){
+  var url = supabaseUrl + '/rest/v1' + path;
+  var headers = {
+    'apikey': supabaseAnonKey,
+    'Authorization': 'Bearer ' + supabaseAnonKey,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+  if(options && options.method){
+    Object.assign(headers, options.headers || {});
+  }
+  return fetch(url, {
+    method: options ? options.method : 'GET',
+    headers: headers,
+    body: options && options.body ? JSON.stringify(options.body) : undefined
+  }).then(function(r){
+    return r.json().then(function(data){
+      if(!r.ok){
+        var errMsg = data.error ? data.error.message : 'Request failed (HTTP ' + r.status + ')';
+        return Promise.reject({message: errMsg, status: r.status});
+      }
+      return data;
+    });
+  });
+}
+
+// Supabase-style API wrappers
+var supabase = {
+  from: function(tableName){
+    var tablePath = '/' + tableName;
+    return {
+      select: function(columns){
+        var path = tablePath + '?select=' + (columns || '*');
+        return {
+          gte: function(col, val){ path += '&' + col + '=gte.' + encodeURIComponent(val); return this; },
+          lte: function(col, val){ path += '&' + col + '=lte.' + encodeURIComponent(val); return this; },
+          eq: function(col, val){ path += '&' + col + '=eq.' + encodeURIComponent(val); return this; },
+          order: function(col, opts){ path += '&order=' + col + ':' + (opts && opts.ascending === false ? 'desc' : 'asc'); return this; },
+          limit: function(n){ path += '&limit=' + n; return this; },
+          single: function(){ 
+            return supabaseFetch(path).then(function(d){ 
+              return {data: d && d.length > 0 ? d[0] : null, error: d && d.length === 0 ? {message:'Not found'} : null}; 
+            }); 
+          },
+          then: function(resolve, reject){ 
+            return supabaseFetch(path)
+              .then(function(d){ resolve({data: d, error: null}); })
+              .catch(function(e){ reject(e); });
+          }
+        };
+      },
+      insert: function(rows){
+        return supabaseFetch(tablePath, {method: 'POST', body: rows})
+          .then(function(d){ return {data: d, error: null}; })
+          .catch(function(e){ return Promise.reject(e); });
+      },
+      update: function(data){
+        return {
+          eq: function(col, val){
+            var path = tablePath;
+            var body = {};
+            body[col] = val;
+            for(var k in data) body[k] = data[k];
+            return supabaseFetch(path, {method: 'PATCH', body: body})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          },
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      },
+      delete: function(){
+        return { 
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      }
+    };
+  }
+};
+
+console.log('Supabase REST API ready');
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+function statusClass(s){var m={'New':'new','Prep':'prep','Packed':'packed','Out':'out','Done':'done'};return m[s]||'new'}
+function getFallback(){try{return JSON.parse(localStorage.getItem('fd_orders_fallback')||'[]');}catch(e){return [];}}
+
+function init(){
+  console.log('Report init() started');
+  try {
+    document.getElementById('displayPeriod').textContent=
+      new Date().toLocaleDateString('en-MY',{month:'long',year:'numeric'});
+    
+    var ms=document.getElementById('reportMonth');
+    if(!ms){
+      console.error('reportMonth element not found');
+      return;
+    }
+    
+    var now=new Date();
+    for(var i=0;i<12;i++){
+      var d=new Date(now.getFullYear(),now.getMonth()-i,1);
+      var opt=document.createElement('option');
+      opt.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+      opt.textContent=d.toLocaleDateString('en-MY',{month:'long',year:'numeric'});
+      ms.appendChild(opt);
+    }
+    console.log('Month dropdown populated with', ms.options.length, 'options');
+  } catch(e) {
+    console.error('init() error:', e);
+  }
+}
+    
+    var ms=document.getElementById('reportMonth');
+    if(!ms){
+      console.error('reportMonth element not found');
+      return;
+    }
+    
+    var now=new Date();
+    for(var i=0;i<12;i++){
+      var d=new Date(now.getFullYear(),now.getMonth()-i,1);
+      var opt=document.createElement('option');
+      opt.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+      opt.textContent=d.toLocaleDateString('en-MY',{month:'long',year:'numeric'});
+      ms.appendChild(opt);
+    }
+    console.log('Month dropdown populated with', ms.options.length, 'options');
+  } catch(e) {
+    console.error('init() error:', e);
+  }
+}
+
+  var ms=document.getElementById('reportMonth');
+  var now=new Date();
+  for(var i=0;i<12;i++){
+    var d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    var opt=document.createElement('option');
+    opt.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    opt.textContent=d.toLocaleDateString('en-MY',{month:'long',year:'numeric'});
+    ms.appendChild(opt);
+  }
+
+  var editId=null;
+  try{editId=sessionStorage.getItem('viewing_order_id');}catch(e){}
+  if(editId){
+    try{sessionStorage.removeItem('viewing_order_id');}catch(e){}
+    loadReport().then(function(){
+      var el=document.querySelector('a[href="#order-'+editId+'"]');
+      if(el)el.scrollIntoView();
+    });
+  }else{
+    loadReport();
+  }
+}
+
+function loadReport(){
+  console.log('loadReport called, supabase:', typeof supabase);
+  return new Promise(function(resolve,reject){
+    console.log('loadReport() called, supabase:', typeof supabase);
+    var mv=document.getElementById('reportMonth').value;
+    var year,month;
+    if(mv){
+      var parts=mv.split('-');
+      year=parseInt(parts[0],10);
+      month=parseInt(parts[1],10)-1;
+    }else{
+      var now=new Date();
+      year=now.getFullYear();
+      month=now.getMonth();
+    }
+
+    var ms=new Date(year,month,1).toISOString();
+    var me=new Date(year,month+1,0,23,59,59).toISOString();
+
+    document.getElementById('displayPeriod').textContent=
+      new Date(year,month).toLocaleDateString('en-MY',{month:'long',year:'numeric'});
+
+    var doLoad=function(orders){
+      filteredOrders=orders;
+      filterAndRender(orders,ms,me);
+      resolve();
+    };
+
+    if(!supabase){
+      doLoad(getFallback());
+      return;
+    }
+
+    supabase.from('orders').select('*')
+      .gte('created_at',ms)
+      .lte('created_at',me)
+      .order('created_at',{ascending:false})
+      .then(function(resp){
+        if(resp.error)throw resp.error;
+        doLoad(resp.data||[]);
+      })
+      .catch(function(err){
+        console.error('Report load error:', err);
+        document.getElementById('ordersBody').innerHTML=
+          '<tr><td colspan="6" class="empty-state">Error loading report: '+(err.message||'unknown')+'</td></tr>';
+        reject(err);
+      });
+  });
+}
+
+function filterAndRender(orders){
+  filteredOrders=orders;
+  var totalOrders=orders.length;
+  var totalRevenue=0,deliveries=0,pickups=0,totalDiscount=0,totalSubtotal=0,cashRevenue=0;
+  for(var i=0;i<orders.length;i++){
+    var o=orders[i];
+    totalRevenue+=parseFloat(o.total||0);
+    totalDiscount+=parseFloat(o.discount||0);
+    totalSubtotal+=parseFloat(o.subtotal||0);
+    if(o.order_type==='Delivery')deliveries++;
+    else if(o.order_type==='Pickup')pickups++;
+    if(o.payment_method==='Cash')cashRevenue+=parseFloat(o.total||0);
+  }
+  var avgOrder=totalOrders>0?totalRevenue/totalOrders:0;
+
+  document.getElementById('statOrders').textContent=totalOrders;
+  document.getElementById('statRevenue').textContent='RM '+totalRevenue.toLocaleString('en-MY',{minimumFractionDigits:2});
+  document.getElementById('statDelivery').textContent=deliveries;
+  document.getElementById('statPickup').textContent=pickups;
+  document.getElementById('statAvgOrder').textContent='RM '+avgOrder.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('statDiscount').textContent='RM '+totalDiscount.toLocaleString('en-MY',{minimumFractionDigits:2});
+  document.getElementById('statSubtotal').textContent='RM '+totalSubtotal.toLocaleString('en-MY',{minimumFractionDigits:2});
+  document.getElementById('statCash').textContent='RM '+cashRevenue.toLocaleString('en-MY',{minimumFractionDigits:2});
+
+  renderDailyBreakdown();
+  renderTopItems();
+  renderEfficiency();
+  renderOrdersTable();
+}
+
+function renderDailyBreakdown(){
+  var byDate={};
+  for(var i=0;i<filteredOrders.length;i++){
+    var o=filteredOrders[i];
+    var date=o.created_at?new Date(o.created_at).toISOString().slice(0,10):'unknown';
+    if(!byDate[date])byDate[date]={orders:0,revenue:0,delivery:0,pickup:0};
+    byDate[date].orders++;
+    byDate[date].revenue+=parseFloat(o.total||0);
+    if(o.order_type==='Delivery')byDate[date].delivery++;
+    else byDate[date].pickup++;
+  }
+
+  var c=document.getElementById('dailyBreakdown');
+  var sd=Object.keys(byDate).sort();
+  document.getElementById('daysCount').textContent=sd.length;
+
+  if(sd.length===0){
+    c.innerHTML='<div class="empty-state">No data for this period.</div>';
+    return;
+  }
+
+  var max=1;
+  for(var j=0;j<sd.length;j++){if(byDate[sd[j]].orders>max)max=byDate[sd[j]].orders;}
+
+  var html='';
+  for(var k=0;k<sd.length;k++){
+    var date=sd[k];
+    var d=byDate[date];
+    var pct=(d.orders/max*100).toFixed(0);
+    var dd=new Date(date+'T12:00:00').toLocaleDateString('en-MY',{weekday:'short',month:'short',day:'numeric'});
+    html+='<div class="daily-item">'+
+      '<div class="daily-header">'+
+        '<span class="daily-date">'+dd+'</span>'+
+        '<span class="daily-meta">'+d.orders+' orders · RM '+d.revenue.toFixed(2)+' · 🚚'+d.delivery+' 📦'+d.pickup+'</span>'+
+      '</div>'+
+      '<div class="bar-container"><div class="bar" style="width:'+pct+'%"></div></div>'+
+    '</div>';
+  }
+  c.innerHTML=html;
+}
+
+function renderTopItems(){
+  var itemTotals={};
+  for(var i=0;i<filteredOrders.length;i++){
+    var o=filteredOrders[i];
+    var items=o.items||[];
+    for(var j=0;j<items.length;j++){
+      var item=items[j];
+      var key=item.name||'Unknown';
+      if(!itemTotals[key])itemTotals[key]={qty:0,revenue:0};
+      itemTotals[key].qty+=parseInt(item.qty)||0;
+      itemTotals[key].revenue+=parseFloat(item.total||0);
+    }
+  }
+
+  var c=document.getElementById('topItems');
+  var entries=[];
+  var keys=Object.keys(itemTotals);
+  for(var k=0;k<keys.length;k++)entries.push([keys[k],itemTotals[keys[k]]]);
+  entries.sort(function(a,b){return b[1].revenue-a[1].revenue;});
+  entries=entries.slice(0,10);
+
+  if(entries.length===0){
+    c.innerHTML='<div class="empty-state">No items sold this period.</div>';
+    return;
+  }
+
+  var html='';
+  for(var e=0;e<entries.length;e++){
+    var name=entries[e][0];
+    var data=entries[e][1];
+    html+='<div class="top-item">'+
+      '<span class="rank">#'+(e+1)+'</span>'+
+      '<span class="name">'+esc(name)+'</span>'+
+      '<span class="qty">'+data.qty+' sold</span>'+
+      '<span class="revenue">RM '+data.revenue.toFixed(2)+'</span>'+
+    '</div>';
+  }
+  c.innerHTML=html;
+}
+
+function renderOrdersTable(){
+  var c=document.getElementById('ordersBody');
+  var ce=document.getElementById('orderCount');
+  ce.textContent=filteredOrders.length+' orders';
+
+  if(filteredOrders.length===0){
+    c.innerHTML='<tr><td colspan="6" class="empty-state"><div class="icon">📭</div>No orders found for this period.</td></tr>';
+    return;
+  }
+
+  var html='';
+  for(var i=0;i<filteredOrders.length;i++){
+    var o=filteredOrders[i];
+    html+='<tr>'+
+      '<td><span style="font-weight:700;color:#141652">'+esc(o.order_number)+'</span></td>'+
+      '<td>'+esc(o.customer_name||'—')+'</td>'+
+      '<td style="color:#888;font-size:12px">'+(o.order_type||'—')+'</td>'+
+      '<td class="num">RM '+parseFloat(o.total||0).toLocaleString('en-MY',{minimumFractionDigits:2})+'</td>'+
+      '<td><span class="status-badge '+statusClass(o.status)+'">'+esc(o.status||'New')+'</span></td>'+
+      '<td class="date-cell">'+(o.created_at?new Date(o.created_at).toLocaleDateString('en-MY',{month:'short',day:'numeric'}):'—')+'</td>'+
+    '</tr>';
+  }
+  c.innerHTML=html;
+}
+
+function renderEfficiency(){
+  var panel=document.getElementById('efficiencyPanel');
+  if(!panel)return;
+
+  var orders=filteredOrders||[];
+  if(orders.length===0){
+    panel.innerHTML='<div class="empty-state">No orders to analyze.</div>';
+    return;
+  }
+
+  var times=[], times2=[], times3=[], times4=[];
+  for(var i=0;i<orders.length;i++){
+    var o=orders[i];
+    if(o.status_prep_at && o.created_at)times.push(new Date(o.status_prep_at)-new Date(o.created_at));
+    if(o.status_packed_at && o.status_prep_at)times2.push(new Date(o.status_packed_at)-new Date(o.status_prep_at));
+    if(o.status_out_at && o.status_packed_at)times3.push(new Date(o.status_out_at)-new Date(o.status_packed_at));
+    if(o.status_done_at && o.status_out_at)times4.push(new Date(o.status_done_at)-new Date(o.status_out_at));
+  }
+
+  function avg(arr){return arr.length?arr.reduce(function(a,b){return a+b;},0)/arr.length/60000:0;}
+
+  var items=[
+    {label:'New → Prep',minutes:avg(times),cls:'#f97316'},
+    {label:'Prep → Packed',minutes:avg(times2),cls:'#f97316'},
+    {label:'Packed → Out',minutes:avg(times3),cls:'#f97316'},
+    {label:'Out → Done',minutes:avg(times4),cls:'#f97316'}
+  ];
+
+  var html='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">';
+  for(var j=0;j<items.length;j++){
+    var it=items[j];
+    html+='<div class="stat-card">'+
+      '<div class="stat-icon" style="font-size:14px">⏱️</div>'+
+      '<div class="stat-num" style="color:'+it.cls+'">'+(it.minutes.toFixed(1)||'—')+'</div>'+
+      '<div class="stat-label">'+it.label+' (min)</div>'+
+    '</div></div></div>';
+  }
+  html+='</div>';
+  panel.innerHTML=html;
+}
+
+function resetMonth(){
+  document.getElementById('reportMonth').value='';
+  loadReport();
+}
+
+function exportCSV(orders,filename){
+  var headers=['Order Number','Customer','Phone','Address','Type','Payment','Subtotal','Discount','Total','Status','Date','Notes','Taken By','Items'];
+  var rows=[];
+  for(var i=0;i<orders.length;i++){
+    var o=orders[i];
+    rows.push([
+      o.order_number,o.customer_name,o.phone,o.delivery_address,
+      o.order_type,o.payment_method,o.subtotal,o.discount,o.total,
+      o.status,o.created_at?new Date(o.created_at).toLocaleString('en-MY'):'',
+      o.notes,o.taken_by,
+      (o.items||[]).map(function(it){return it.name+' x'+it.qty+' (RM '+it.total+')';}).join('; ')
+    ]);
+  }
+  var csv='\uFEFF'+headers.join(',')+'\n';
+  for(var r=0;r<rows.length;r++){
+    var row=rows[r];
+    csv+=row.map(function(v){
+      var s=String(v||'').replace(/"/g,'""');
+      return s.indexOf(',')!==-1||s.indexOf('"')!==-1||s.indexOf('\n')!==-1?'"' + s + '"' : s;
+    }).join(',')+'\n';
+  }
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function exportCSVFn(){
+  if(filteredOrders.length===0){showFlash('No orders to export.','error');return;}
+  exportCSV(filteredOrders,'Food2Door_Report_'+new Date().toISOString().slice(0,10)+'.csv');
+  showFlash('✅ Report downloaded!','success');
+}
+
+function exportFullCSVFn(){
+  if(!supabase){
+    var all=getFallback();
+    exportCSV(all,'Food2Door_Full_'+new Date().toISOString().slice(0,10)+'.csv');
+    showFlash('✅ Full data exported!','success');
+    return;
+  }
+  supabase.from('orders').select('*').order('created_at',{ascending:false})
+    .then(function(resp){
+      if(resp.error)throw resp.error;
+      exportCSV(resp.data||[],'Food2Door_Full_'+new Date().toISOString().slice(0,10)+'.csv');
+      showFlash('✅ Full data exported!','success');
+    })
+    .catch(function(err){showFlash('Error: '+(err.message||'unknown'),'error');});
+}
+
+function showFlash(msg,type){
+  var existing=document.querySelector('.flash');
+  if(existing)existing.remove();
+  var el=document.createElement('div');
+  el.className='flash '+type;
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},3000);
+}
+
+window.loadReport=loadReport;
+window.resetMonth=resetMonth;
+window.exportCSV=exportCSVFn;
+window.exportFullCSV=exportFullCSVFn;
+window.showFlash=showFlash;
+window.deleteTestData=deleteTestData;
+window.renderEfficiency=renderEfficiency;
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+else init();
+</script>
+</body>
+</html>

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Food2Door — Take Order</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0f0f0;font-family:'Nunito',sans-serif;color:#111;padding:20px;min-height:100vh}
+.container{max-width:660px;margin:0 auto;background:#fff;border-radius:14px 14px 0 0;padding:28px 24px 16px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.logobar{display:flex;align-items:center;gap:8px;margin-bottom:22px}
+.logobar .logo{font-size:24px;font-weight:800;color:#141652;letter-spacing:-.5px}
+.logobar .logo span{color:#f97316}
+.pagehead{text-align:center;margin-bottom:18px}
+.pagehead h1{font-size:20px;font-weight:800;color:#111;letter-spacing:-.3px}
+.pagehead .sub{font-size:13px;color:#888;margin-top:3px}
+.section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#888;margin:14px 0 8px;display:flex;align-items:center;gap:7px}
+.section-title .emoji{font-size:14px;text-transform:none}
+.form-row{display:flex;gap:12px;margin-bottom:10px}
+.form-group{flex:1;display:flex;flex-direction:column;margin-bottom:10px}
+label{font-size:12px;font-weight:700;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+input,select,textarea{width:100%;padding:9px 11px;border:1.5px solid #e0e0e0;border-radius:7px;font-size:14px;font-family:'Nunito',sans-serif;color:#111;background:#fff;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.12)}
+textarea{min-height:40px;resize:vertical}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#888 50%),linear-gradient(135deg,#888 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:32px}
+.btn-row{display:flex;gap:10px;margin-top:14px}
+.btn{padding:11px 20px;border:none;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s}
+.btn-primary{background:#141652;color:#fff}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;filter:none;transform:none}
+.btn-secondary{background:#b5b5b5;color:#111}
+.btn-secondary:hover{filter:brightness(1.15)}
+.btn-danger{background:#dc2626;color:#fff;font-size:12px;padding:5px 9px;border-radius:5px}
+.btn-danger:hover{filter:brightness(1.2)}
+.spinner{width:11px;height:11px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin .65s linear infinite;display:inline-block;vertical-align:middle;margin-right:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.flash{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px;animation:fadeOut 4.5s forwards}
+.flash.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.flash.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.flash.info{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+@keyframes fadeOut{0%,70%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-6px)}}
+.nav-bar-outer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;box-shadow:0 -1px 4px rgba(0,0,0,.04);padding:5px 0;z-index:999}
+.nav-bar-inner{display:flex;gap:4px;max-width:660px;margin:0 auto}
+.nav-btn{cursor:pointer;flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#888;text-decoration:none;border-radius:7px;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;outline:none}
+.nav-btn:hover{background:#f5f5f5;color:#111}
+.nav-btn.active{background:#f97316;color:#fff;box-shadow:0 2px 5px rgba(249,115,22,.25)}
+.status-badge{padding:4px 9px;border:1px solid #ddd;border-radius:5px;font-size:11px;font-weight:700;background:#fff;color:#888;cursor:pointer;transition:all .12s;letter-spacing:.2px}
+.status-badge:hover{border-color:#141652;color:#141652}
+.status-badge.active{background:#141652;color:#fff;border-color:#141652}
+.empty-order{padding:24px 16px;text-align:center;color:#999;font-size:14px;font-weight:600}
+.total-block{border-top:1.5px solid #e0e0e0;padding-top:12px;margin-top:6px}
+.total-row{display:flex;justify-content:space-between;align-items:baseline}
+.total-label{font-size:13px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px}
+.total-value{font-size:22px;font-weight:800;color:#141652;letter-spacing:-.5px}
+.discount-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.discount-input{flex:1}
+.discount-display{flex-shrink:0;padding:8px 11px;background:#f5f5f5;border:1.5px solid #e0e0e0;border-radius:7px;font-size:14px;font-weight:700;color:#111;white-space:nowrap;font-variant-numeric:tabular-nums}
+.save-status{margin-top:10px;font-size:13px;text-align:center;color:#065f46;min-height:18px;font-weight:600}
+.order-card{border:1px solid #eee;border-radius:9px;padding:12px 13px;margin-bottom:8px;background:#fafafa;transition:box-shadow .15s}
+.order-card:hover{box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.order-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.order-num{font-size:13px;font-weight:800;color:#141652;letter-spacing:-.2px}
+.order-meta{font-size:12px;color:#777;margin-top:2px}
+.status-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.order-items{font-size:13px;color:#333;margin:6px 0 5px}
+.order-items>div{padding:2px 0;border-bottom:1px dotted #eee}
+.order-items>div:last-child{border-bottom:none}
+.order-total-line{font-size:15px;font-weight:800;color:#141652;margin-top:6px;padding-top:5px;border-top:1px solid #eee}
+.order-foot{font-size:11px;color:#999;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logobar">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#f97316"/><path d="M8 22V14l8-3 8 3v8h-5v-5h-6v5h-5z" fill="#fff"/></svg>
+    <div class="logo">Food<span>2Door</span></div>
+  </div>
+
+  <div id="flashContainer"></div><div id="errorContainer" style="display:none;position:fixed;top:10px;left:10px;right:10px;z-index:9999;background:#fee;border:2px solid #f00;padding:10px;font-size:12px;max-height:200px;overflow:auto;"></div>
+
+  <form id="orderForm" action="about:blank" onsubmit="return submitOrder(event)">
+    <div class="pagehead">
+      <h1>New Order</h1>
+      <div class="sub">Today's Orders · RM Currency</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group"><label>Customer Name *</label><input type="text" id="customer_name" placeholder="e.g. Ahmad R" autocomplete="off" required></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="phone" placeholder="012-3456789" autocomplete="off"></div>
+    </div>
+    <div class="form-group"><label>Delivery Address</label><textarea id="delivery_address" rows="2" placeholder="House no, street, area"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Order Type</label><select id="order_type"><option value="Delivery">🚚 Delivery</option><option value="Pickup">📦 Pickup</option></select></div>
+      <div class="form-group"><label>Payment Method</label><select id="payment_method"><option value="Cash">💵 Cash</option><option value="Bank Transfer">🏦 Bank Transfer</option><option value="QR Pay">📱 QR Pay</option></select></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="emoji">🍽️</span> Order Items</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:5px 4px;border-bottom:1.5px solid #eee;font-size:10px;font-weight:800;text-transform:uppercase;color:#999">Item Name</th>
+            <th style="text-align:center;padding:5px 4px;border-bottom:1.5px solid #eee;font-size:10px;font-weight:800;text-transform:uppercase;color:#999">Qty</th>
+            <th style="text-align:right;padding:5px 4px;border-bottom:1.5px solid #eee;font-size:10px;font-weight:800;text-transform:uppercase;color:#999">Price (RM)</th>
+            <th style="text-align:right;padding:5px 4px;border-bottom:1.5px solid #eee;font-size:10px;font-weight:800;text-transform:uppercase;color:#999">Total (RM)</th>
+            <th style="text-align:center;padding:5px 4px;border-bottom:1.5px solid #eee;font-size:10px;font-weight:800;text-transform:uppercase;color:#999"></th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody">
+          <tr>
+            <td style="text-align:left">
+              <select class="item-name" onchange="onItemSelect(this)" style="width:100%">
+                <option value="">-- Select item --</option>
+                <option value="Chicken VSR" data-price="4.00">Chicken VSR — RM 4.00</option>
+                <option value="Duck VSR" data-price="4.00">Duck VSR — RM 4.00</option>
+                <option value="Beef VSR" data-price="5.00">Beef VSR — RM 5.00</option>
+                <option value="Prawn VSR" data-price="5.00">Prawn VSR — RM 5.00</option>
+                <option value="Octopus VSR" data-price="6.00">Octopus VSR — RM 6.00</option>
+                <option value="Salmon VSR" data-price="6.00">Salmon VSR — RM 6.00</option>
+                <option value="Combo A" data-price="58.00">Combo A — RM 58.00</option>
+                <option value="Combo B" data-price="85.00">Combo B — RM 85.00</option>
+                <option value="Combo C" data-price="140.00">Combo C — RM 140.00</option>
+                <option value="Combo D" data-price="185.00">Combo D — RM 185.00</option>
+              </select>
+              <div class="combo-note" style="display:none;font-size:11px;color:#666;margin-top:3px"></div>
+            </td>
+            <td style="text-align:center"><input type="number" class="item-qty" value="1" min="1" oninput="calculateTotals()" inputmode="numeric" style="width:60px"></td>
+            <td style="text-align:right"><input type="number" class="item-price" value="0.00" min="0" step="0.01" oninput="calculateTotals()" inputmode="decimal" style="width:72px"></td>
+            <td style="text-align:right;padding-right:4px"><span class="item-total">RM 0.00</span></td>
+            <td style="text-align:center;padding-left:8px"><button type="button" class="btn btn-danger" onclick="removeRow(this)">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:7px;text-align:center"><button type="button" class="btn btn-secondary" style="padding:8px 18px" onclick="addRow()">+ Add Item</button></div>
+    </div>
+
+    <div class="section" style="margin-top:8px">
+      <div class="section-title"><span class="emoji">💰</span> Order Total</div>
+      <div class="total-block">
+        <div class="total-row">
+          <span class="total-label">Grand Total</span>
+          <span class="total-value" id="grandTotal">RM 0.00</span>
+        </div>
+      </div>
+      <div class="discount-row">
+        <div class="form-group discount-input"><label>Discount (MYR) — optional</label><input type="number" id="discount" value="0" min="0" step="0.01" inputmode="decimal" oninput="calculateTotals()"></div>
+        <div class="discount-display" id="discountDisplay">RM 0.00</div>
+      </div>
+      <div class="form-group" style="margin-top:12px"><label>Notes</label><textarea id="notes" rows="2" placeholder="Special instructions..."></textarea></div>
+      <div class="form-group" style="margin-top:10px"><label>Taken By (Staff)</label><select id="taken_by"><option value="Atan">— Atan —</option><option value="Bella">— Bella —</option><option value="Dev (Test)">— Dev (Test) —</option></select></div>
+      <div class="btn-row" style="margin-top:14px">
+        <button type="submit" class="btn btn-primary" id="saveBtn"><span id="saveIcon"></span><span id="saveText">Save Order</span></button>
+        <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+      </div>
+      <div class="save-status" id="saveStatus"></div>
+    </div>
+  </form>
+
+  <div class="section" style="margin-top:16px">
+    <div class="section-title"><span class="emoji">🕒</span> Today's Orders <span id="orderCount" style="font-weight:400;text-transform:none;color:#aaa;font-size:12px">(0)</span></div>
+    <div id="ordersList"></div>
+  </div>
+
+  </div>
+</div>
+
+<div class="nav-bar-outer" style="position:fixed;bottom:0;left:0;right:0;z-index:999">
+  <div class="nav-bar-inner">
+    <a href="/" class="nav-btn active">🏠 Take Order</a>
+    <a href="/all" class="nav-btn">📋 All Orders</a>
+    <a href="/report" class="nav-btn">📈 Month Report</a>
+    <a href="/settings" class="nav-btn">⚙️ Settings</a>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var supabaseUrl='https://gzzlokhsibryyflddikh.supabase.co';
+var supabaseAnonKey='sb_publishable_5y_iBXJ4OTMSFP9l0QcWsg_hczQnD2I';
+
+// Supabase REST API helper - no CDN dependency
+function supabaseFetch(path, options){
+  var url = supabaseUrl + '/rest/v1' + path;
+  var headers = {
+    'apikey': supabaseAnonKey,
+    'Authorization': 'Bearer ' + supabaseAnonKey,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+  if(options && options.method){
+    Object.assign(headers, options.headers || {});
+  }
+  return fetch(url, {
+    method: options ? options.method : 'GET',
+    headers: headers,
+    body: options && options.body ? JSON.stringify(options.body) : undefined
+  }).then(function(r){
+    return r.json().then(function(data){
+      if(!r.ok){
+        var errMsg = data.error ? data.error.message : 'Request failed (HTTP ' + r.status + ')';
+        return Promise.reject({message: errMsg, status: r.status});
+      }
+      return data;
+    });
+  });
+}
+
+// Supabase-style API wrappers
+var supabase = {
+  from: function(tableName){
+    var tablePath = '/' + tableName;
+    return {
+      select: function(columns){
+        var path = tablePath + '?select=' + (columns || '*');
+        return {
+          gte: function(col, val){ path += '&' + col + '=gte.' + encodeURIComponent(val); return this; },
+          lte: function(col, val){ path += '&' + col + '=lte.' + encodeURIComponent(val); return this; },
+          eq: function(col, val){ path += '&' + col + '=eq.' + encodeURIComponent(val); return this; },
+          order: function(col, opts){ path += '&order=' + col + ':' + (opts && opts.ascending === false ? 'desc' : 'asc'); return this; },
+          limit: function(n){ path += '&limit=' + n; return this; },
+          single: function(){ 
+            return supabaseFetch(path).then(function(d){ 
+              return {data: d && d.length > 0 ? d[0] : null, error: d && d.length === 0 ? {message:'Not found'} : null}; 
+            }); 
+          },
+          then: function(resolve, reject){ 
+            return supabaseFetch(path)
+              .then(function(d){ resolve({data: d, error: null}); })
+              .catch(function(e){ reject(e); });
+          }
+        };
+      },
+      insert: function(rows){
+        return supabaseFetch(tablePath, {method: 'POST', body: rows})
+          .then(function(d){ return {data: d, error: null}; })
+          .catch(function(e){ return Promise.reject(e); });
+      },
+      update: function(data){
+        return {
+          eq: function(col, val){
+            var path = tablePath;
+            var body = {};
+            body[col] = val;
+            for(var k in data) body[k] = data[k];
+            return supabaseFetch(path, {method: 'PATCH', body: body})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          },
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      },
+      delete: function(){
+        return { 
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      }
+    };
+  }
+};
+
+console.log('Supabase REST API ready');
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+
+function showFlash(msg,type){
+  var fc=document.getElementById('flashContainer'),el=fc.querySelector('.flash');
+  if(el)el.remove();
+  el=document.createElement('div');
+  el.className='flash '+type;
+  el.textContent=msg;
+  fc.appendChild(el);
+  setTimeout(function(){if(el.parentNode)el.remove();},4500);
+}
+
+function showStatus(msg){document.getElementById('saveStatus').textContent=msg;setTimeout(function(){document.getElementById('saveStatus').textContent='';},5000);}
+
+function calculateTotals(){
+  var rows=document.querySelectorAll('#itemsBody tr');
+  var t=0;
+  for(var i=0;i<rows.length;i++){
+    var tr=rows[i];
+    var sel=tr.querySelector('.item-name');
+    var q=parseInt(tr.querySelector('.item-qty').value,10)||0;
+    var p=parseFloat(tr.querySelector('.item-price').value)||0;
+    if(sel && sel.tagName==='SELECT'){
+      var opt=(sel.selectedOptions&&sel.selectedOptions[0])||null;
+      var dp=opt?parseFloat(opt.getAttribute('data-price')||''):NaN;
+      if(!isNaN(dp))p=dp;
+    }
+    var total=q*p;
+    tr.querySelector('.item-total').textContent='RM '+total.toFixed(2);
+    var n=(sel&&sel.value?sel.value:'').trim();
+    if(n)t+=total;
+  }
+  var dv=parseFloat(document.getElementById('discount').value)||0;
+  document.getElementById('discountDisplay').textContent='RM '+dv.toFixed(2);
+  document.getElementById('grandTotal').textContent='RM '+Math.max(0,t-dv).toFixed(2);
+}
+
+function addRow(){
+  var tb=document.getElementById('itemsBody');
+  if(!tb)return;
+  var tr=document.createElement('tr');
+  tr.innerHTML=
+    '<td style="text-align:left">'+
+      '<select class="item-name" onchange="onItemSelect(this)" style="width:100%">'+
+        '<option value="">-- Select item --</option>'+
+        '<option value="Chicken VSR" data-price="4.00">Chicken VSR — RM 4.00</option>'+
+        '<option value="Duck VSR" data-price="4.00">Duck VSR — RM 4.00</option>'+
+        '<option value="Beef VSR" data-price="5.00">Beef VSR — RM 5.00</option>'+
+        '<option value="Prawn VSR" data-price="5.00">Prawn VSR — RM 5.00</option>'+
+        '<option value="Octopus VSR" data-price="6.00">Octopus VSR — RM 6.00</option>'+
+        '<option value="Salmon VSR" data-price="6.00">Salmon VSR — RM 6.00</option>'+
+        '<option value="Combo A" data-price="58.00">Combo A — RM 58.00</option>'+
+        '<option value="Combo B" data-price="85.00">Combo B — RM 85.00</option>'+
+        '<option value="Combo C" data-price="140.00">Combo C — RM 140.00</option>'+
+        '<option value="Combo D" data-price="185.00">Combo D — RM 185.00</option>'+
+      '</select>'+
+      '<div class="combo-note" style="display:none;font-size:11px;color:#666;margin-top:3px"></div>'+
+    '</td>'+
+    '<td style="text-align:center"><input type="number" class="item-qty" value="1" min="1" oninput="calculateTotals()" inputmode="numeric" style="width:60px"></td>'+
+    '<td style="text-align:right"><input type="number" class="item-price" value="0.00" min="0" step="0.01" oninput="calculateTotals()" inputmode="decimal" style="width:72px"></td>'+
+    '<td style="text-align:right;padding-right:4px"><span class="item-total">RM 0.00</span></td>'+
+    '<td style="text-align:center;padding-left:8px"><button type="button" class="btn btn-danger" onclick="removeRow(this)">✕</button></td>';
+  tb.appendChild(tr);
+  var first=tr.querySelector('input,select');
+  if(first)first.focus();
+}
+
+function removeRow(btn){
+  var tb=document.getElementById('itemsBody');
+  if(tb.rows.length<=1)return;
+  btn.closest('tr').remove();
+  calculateTotals();
+}
+
+function onItemSelect(sel){
+  var tr=sel.closest('tr');
+  if(!tr)return;
+  var note=tr.querySelector('.combo-note');
+  var priceInput=tr.querySelector('.item-price');
+  var opt=(sel.selectedOptions&&sel.selectedOptions[0])||null;
+  if(opt){
+    var dp=opt.getAttribute('data-price');
+    if(dp!==null && priceInput)priceInput.value=dp;
+    if(note)note.style.display='none';
+    if(note)note.textContent='';
+    var v=sel.value;
+    if(/^Combo /.test(v)){
+      var map={
+        'Combo A':'Includes: 2 chicken, 2 duck, 2 beef, 2 prawn, 2 octopus, 2 salmon, 2 sauce',
+        'Combo B':'Includes: 3 chicken, 3 duck, 3 beef, 3 prawn, 3 octopus, 3 salmon, 3 sauce',
+        'Combo C':'Includes: 5 chicken, 5 duck, 5 beef, 5 prawn, 5 octopus, 5 salmon, 5 sauce',
+        'Combo D':'Includes: 10 chicken, 10 beef, 10 prawn, 10 salmon, 6 sauce'
+      };
+      if(note){note.textContent=map[v]||'';note.style.display=v?'block':'none';}
+    }
+  }else{
+    if(priceInput)priceInput.value='0.00';
+    if(note){note.textContent='';note.style.display='none';}
+  }
+  calculateTotals();
+}
+
+function getItems(){
+  var rows=document.querySelectorAll('#itemsBody tr');
+  var items=[];
+  for(var i=0;i<rows.length;i++){
+    var tr=rows[i];
+    var sel=tr.querySelector('.item-name');
+    var n=(sel&&sel.value?sel.value:'').trim();
+    if(!n)continue;
+    var q=parseInt(tr.querySelector('.item-qty').value,10)||1;
+    var p=parseFloat(tr.querySelector('.item-price').value)||0;
+    var total=q*p;
+    items.push({name:n,qty:q,price:p,total:total});
+  }
+  return items;
+}
+
+function submitOrder(e){
+  e.preventDefault();
+  var name=document.getElementById('customer_name').value.trim();
+  if(!name){showFlash('Please enter a customer name.','error');document.getElementById('customer_name').focus();return;}
+  var items=getItems();
+  if(items.length===0){showFlash('Please add at least one item.','error');return;}
+  var sb=document.getElementById('saveBtn'),si=document.getElementById('saveIcon'),st=document.getElementById('saveText');
+  sb.disabled=true;
+  si.innerHTML='<span class="spinner"></span>';
+  st.textContent='Saving...';
+  document.getElementById('saveStatus').textContent='';
+
+  var t=0;for(var i=0;i<items.length;i++)t+=items[i].total||0;
+  var dv=parseFloat(document.getElementById('discount').value)||0;
+  var gt=Math.max(0,t-dv);
+  var ordNum='F2D-'+today+'-'+String(orderSeq).padStart(3,'0');
+  var od={
+    order_number:ordNum,
+    customer_name:name,
+    phone:document.getElementById('phone').value.trim(),
+    delivery_address:document.getElementById('delivery_address').value.trim(),
+    order_type:document.getElementById('order_type').value,
+    payment_method:document.getElementById('payment_method').value,
+    items:items,
+    subtotal:t.toFixed(2),
+    delivery_fee:'0.00',
+    discount:dv.toFixed(2),
+    total:gt.toFixed(2),
+    notes:document.getElementById('notes').value.trim(),
+    taken_by:document.getElementById('taken_by').value,
+    status:'New'
+  };
+
+  if(supabase){
+    supabase.from('orders').insert([od]).select().single()
+      .then(function(r){
+        if(r.error)throw r.error;
+        orderSeq++;
+        finishSave(r.data);
+      })
+      .catch(function(err){
+        si.innerHTML='';st.textContent='Save Order';sb.disabled=false;
+        document.getElementById('saveStatus').textContent='';
+        showFlash('❌ Save failed: '+(err.message||'unknown'),'error');
+      });
+    return;
+  }
+  var all=[];try{all=JSON.parse(localStorage.getItem('fd_orders_fallback')||'[]');}catch(e){}
+  od.id=Date.now().toString();
+  od.created_at=new Date().toISOString();
+  all.unshift(od);
+  try{localStorage.setItem('fd_orders_fallback',JSON.stringify(all));}catch(e){}
+  orderSeq++;
+  finishSave(od);
+}
+
+function finishSave(ord){
+  var si=document.getElementById('saveIcon'),st=document.getElementById('saveText'),sb=document.getElementById('saveBtn');
+  si.innerHTML='✅';
+  st.textContent='Saved!';
+  showStatus('✅ Order '+ord.order_number+' saved.');
+  showFlash('✅ Order '+ord.order_number+' saved!','success');
+  resetForm();
+  loadOrders();
+  document.getElementById('customer_name').focus();
+  setTimeout(function(){
+    si.innerHTML='';
+    st.textContent='Save Order';
+    sb.disabled=false;
+  },2200);
+
+  // Fetch Telegram config from Supabase directly (fallback to localStorage)
+  var tgConfig=null;
+  if(supabase){
+    supabase.from('settings').select('value').eq('key','app').single()
+      .then(function(r){
+        if(!r.error&&r.data&&r.data.value){
+          var v=r.data.value;
+          tgConfig={
+            bot_token:v.bot_token||'',
+            chat_id:v.chat_id||'@f2d_order',
+            telegram_enabled:(v.telegram_enabled!==false)
+          };
+          if(tgConfig.bot_token&&tgConfig.chat_id&&tgConfig.telegram_enabled){
+            sendTg(ord,tgConfig);
+          }
+        }
+      })
+      .catch(function(){ /* use localStorage fallback below */ });
+  }
+  // Also check localStorage as fallback
+  try{
+    var lb=localStorage.getItem('fd_bot_token')||'';
+    var lc=localStorage.getItem('fd_chat_id')||'';
+    var le=localStorage.getItem('fd_telegram_enabled')==='true';
+    if(lb&&lc&&le&&!tgConfig){sendTg(ord,{bot_token:lb,chat_id:lc});}
+  }catch(e){}
+}
+
+function sendTg(ord,s){
+  if(!s.bot_token||!s.chat_id)return;
+  var it='(No items)';
+  if(ord.items&&ord.items.length>0){
+    var parts=[];
+    for(var i=0;i<ord.items.length;i++){
+      var it2=ord.items[i];
+      parts.push(' - '+esc(it2.name)+' x'+it2.qty+' = RM '+(it2.total||0).toFixed(2));
+    }
+    it=parts.join('\n');
+  }
+  var msg=
+    '<b>FOOD2DOOR ORDER</b>\n'+
+    '------------------------\n'+
+    '<b>Order Number:</b> '+ord.order_number+'\n'+
+    (ord.customer_name?'<b>Customer:</b> '+esc(ord.customer_name)+'\n':'')+
+    (ord.phone?'<b>Phone:</b> '+esc(ord.phone)+'\n':'')+
+    (ord.delivery_address?'<b>Address:</b> '+esc(ord.delivery_address)+'\n':'')+
+    '<b>Order Type:</b> '+esc(ord.order_type||'—')+'\n'+
+    '<b>Payment Method:</b> '+esc(ord.payment_method||'—')+'\n'+
+    '------------------------\n'+
+    '<b>Items:</b>\n'+it+'\n'+
+    '------------------------\n'+
+    '<b>Subtotal:</b> RM '+(ord.subtotal||0).toFixed(2)+'\n'+
+    '<b>Delivery Fee:</b> RM '+(ord.delivery_fee||0).toFixed(2)+'\n'+
+    '<b>Discount:</b> RM '+(ord.discount||0).toFixed(2)+'\n'+
+    '<b>Grand Total:</b> RM '+(ord.total||0).toFixed(2)+'\n'+
+    (ord.notes?'<b>Notes:</b> '+esc(ord.notes)+'\n':'')+
+    '------------------------\n'+
+    '<b>Status:</b> '+esc(ord.status||'New')+'\n\n'+
+    '<i>Sent from Food2Door Order Taker</i>';
+
+  fetch('https://api.telegram.org/bot'+encodeURIComponent(s.bot_token)+'/sendMessage',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:s.chat_id,text:msg,parse_mode:'HTML'})
+  })
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(!d.ok)console.warn('Telegram error:',d.description||d.error);
+  })
+  .catch(function(e){console.warn('Telegram error:',e.message);});
+}
+
+function resetForm(){
+  var f=document.getElementById('orderForm');
+  if(f)f.reset();
+  document.getElementById('itemsBody').innerHTML='';
+  addRow();
+  document.getElementById('discount').value=0;
+  document.getElementById('discountDisplay').textContent='RM 0.00';
+  document.getElementById('grandTotal').textContent='RM 0.00';
+  document.getElementById('saveStatus').textContent='';
+  document.getElementById('customer_name').focus();
+}
+
+function loadOrders(){
+  console.log('loadOrders called, supabase:', typeof supabase);
+  var list=document.getElementById('ordersList');
+  var ce=document.getElementById('orderCount');
+  if(!list)return;
+  if(supabase){
+    var since=today+'T00:00:00';
+    supabase.from('orders').select('*').gte('created_at',since).order('created_at',{ascending:false})
+      .then(function(r){
+        if(r.error){list.innerHTML='<div class="empty-order">Error loading orders</div>';return;}
+        render(r.data||[],ce);
+      })
+      .catch(function(){list.innerHTML='<div class="empty-order">Error loading orders</div>';});
+    return;
+  }
+  var all=[];try{all=JSON.parse(localStorage.getItem('fd_orders_fallback')||'[]');}catch(e){}
+  var todayOrd=[];
+  for(var i=0;i<all.length;i++){
+    if(all[i].created_at&&all[i].created_at.slice(0,10)===today)todayOrd.push(all[i]);
+  }
+  render(todayOrd,ce);
+}
+
+function render(orders,ce){
+  var list=document.getElementById('ordersList');
+  if(!list)return;
+  if(ce)ce.textContent=' ('+orders.length+')';
+  if(orders.length===0){list.innerHTML='<div class="empty-order">No orders yet today</div>';return;}
+  list.innerHTML='';
+  for(var i=0;i<orders.length;i++){
+    var o=orders[i];
+    var ih='';
+    if(o.items&&o.items.length>0){
+      for(var j=0;j<o.items.length;j++){
+        var it=o.items[j];
+        ih+='<div>'+esc(it.name)+' ×'+it.qty+' — RM '+(it.total||0).toFixed(2)+'</div>';
+      }
+    }else{ih='<div style="color:#999;font-size:12px">(No items)</div>';}
+    var card=document.createElement('div');
+    card.className='order-card';
+    var sb=badge(o.status,'new','New')+badge(o.status,'prep','Prep')+badge(o.status,'packed','Packed')+badge(o.status,'out','Out')+badge(o.status,'done','Done');
+    card.innerHTML=
+      '<div class="order-card-header"><div>'+
+        '<div class="order-num">'+esc(o.order_number)+'</div>'+
+        '<div class="order-meta">'+esc(o.customer_name)+' | '+(o.phone?esc(o.phone):'—')+'</div>'+
+      '</div>'+
+      '<div class="status-row">'+sb+'</div></div>'+
+      '<div class="order-items">'+ih+'</div>'+
+      '<div class="order-total-line">RM '+(o.total||0).toFixed(2)+'</div>'+
+      '<div class="order-foot">'+(o.taken_by?esc(o.taken_by)+' | ':'')+(o.payment_method?esc(o.payment_method):'')+(o.notes?' | 📋 '+(o.notes.length>25?esc(o.notes).substring(0,25)+'…':esc(o.notes)):'')+'</div>';
+    list.appendChild(card);
+  }
+}
+
+function badge(cur,label,text){
+  if(cur===label)return '<span class="status-badge active">✓ '+text+'</span>';
+  return '<span class="status-badge" onclick="window.updateStatus(\''+esc(cur)+'\',\''+label+'\')">'+text+'</span>';
+}
+
+window.updateStatus=function(cur,ns){
+  var cards=document.querySelectorAll('#ordersList .order-card');
+  for(var i=0;i<cards.length;i++){
+    var numEl=cards[i].querySelector('.order-num');
+    if(!numEl)continue;
+    var num=numEl.textContent.trim();
+    var sr=cards[i].querySelector('.status-row');
+    if(sr)sr.innerHTML=badge(ns,'new','New')+badge(ns,'prep','Prep')+badge(ns,'packed','Packed')+badge(ns,'out','Out')+badge(ns,'done','Done');
+    if(supabase){
+      var payload={status:ns};
+      if(ns==='Prep')payload.status_prep_at=new Date().toISOString();
+      else if(ns==='Packed')payload.status_packed_at=new Date().toISOString();
+      else if(ns==='Out')payload.status_out_at=new Date().toISOString();
+      else if(ns==='Done')payload.status_done_at=new Date().toISOString();
+      supabase.from('orders').update(payload).eq('order_number',num).then(function(r){
+        if(!r.error)loadOrders();
+      }).catch(function(e){console.warn(e&&e.message);});
+    }else{
+      try{
+        var all2=JSON.parse(localStorage.getItem('fd_orders_fallback')||'[]');
+        for(var k=0;k<all2.length;k++){
+          if(all2[k].order_number===num){
+            all2[k].status=ns;
+            if(ns==='Prep')all2[k].status_prep_at=new Date().toISOString();
+            else if(ns==='Packed')all2[k].status_packed_at=new Date().toISOString();
+            else if(ns==='Out')all2[k].status_out_at=new Date().toISOString();
+            else if(ns==='Done')all2[k].status_done_at=new Date().toISOString();
+            localStorage.setItem('fd_orders_fallback',JSON.stringify(all2));
+            break;
+          }
+        }
+      }catch(e){}
+    }
+  }
+};
+
+window.addRow=addRow;
+window.removeRow=removeRow;
+window.resetForm=resetForm;
+window.calculateTotals=calculateTotals;
+window.getItems=getItems;
+window.submitOrder=submitOrder;
+window.updateStatus=updateStatus;
+window.onItemSelect=onItemSelect;
+
+addRow();
+calculateTotals();
+loadOrders();
+})();
+</script>
+</body>
+</html>

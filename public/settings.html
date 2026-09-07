@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food2Door — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0f0f0;font-family:'Nunito',sans-serif;color:#111;padding:20px;min-height:100vh}
+.container{max-width:660px;margin:0 auto;background:#fff;border-radius:14px 14px 0 0;padding:24px 24px 16px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.header{text-align:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #e8e8e8}
+.logo{font-size:22px;font-weight:800;color:#141652;letter-spacing:-.5px}
+.logo span{color:#f97316}
+.sub-header{font-size:13px;color:#888;margin-top:3px}
+.section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#888;margin:16px 0 10px;display:flex;align-items:center;gap:7px}
+.section-title .emoji{font-size:14px;text-transform:none}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.form-group .hint{font-size:12px;color:#888;margin-top:3px;line-height:1.4}
+input,select,textarea{font-family:'Nunito',sans-serif;font-size:14px;padding:9px 11px;border:1.5px solid #e0e0e0;border-radius:7px;background:#fff;color:#111;outline:none;transition:border-color .15s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.12)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row .form-group{margin-bottom:0}
+.form-actions{display:flex;gap:10px;margin-top:8px}
+.btn{padding:10px 18px;border:none;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s}
+.btn-primary{background:#141652;color:#fff;flex:1}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-secondary{background:#b5b5b5;color:#111}
+.btn-secondary:hover{filter:brightness(1.15)}
+.btn-danger{background:#fff;color:#dc2626;border:1.5px solid #fca5a5}
+.btn-danger:hover{background:#fef2f2}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e8e8e8}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:14px;font-weight:700;color:#111}
+.toggle-desc{font-size:12px;color:#888;margin-top:2px}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#d4d4d4;border-radius:24px;transition:.2s}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider{background:#f97316}
+.toggle input:checked+.toggle-slider::before{transform:translateX(20px)}
+.divider{height:1px;background:#e8e8e8;margin:16px 0}
+.data-stat{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0}
+.data-stat:last-child{border-bottom:none}
+.data-stat .label{font-weight:700;color:#141652;font-size:13px}
+.data-stat .desc{font-size:12px;color:#888;margin-top:1px}
+.data-stat .value{font-weight:700;color:#111;font-size:14px}
+.warning-box{background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #f97316;border-radius:6px;padding:10px 12px;margin-top:10px;font-size:13px;color:#111;line-height:1.5}
+.success-box{background:#ecfdf5;border:1px solid #a7f3d0;border-left:4px solid #059669;border-radius:6px;padding:10px 12px;margin-top:10px;font-size:13px;color:#065f46;line-height:1.5}
+code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:'Courier New',monospace;font-size:12px;color:#141652}
+.nav-bar-outer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;box-shadow:0 -1px 4px rgba(0,0,0,.04);padding:5px 0;justify-content:center;z-index:999}
+.nav-bar-inner{display:flex;gap:4px;max-width:660px;margin:0 auto}
+.nav-btn{cursor:pointer;flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:700;color:#888;text-decoration:none;border-radius:7px;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;outline:none}
+.nav-btn:hover{background:#f5f5f5;color:#111}
+.nav-btn.active{background:#f97316;color:#fff;box-shadow:0 2px 5px rgba(249,115,22,.25)}
+@media(max-width:480px){.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">Food2<span>Door</span></div>
+    <div class="sub-header">Settings</div>
+  </div>
+
+  <div class="section-title"><span class="emoji">🔗</span> Supabase Connection</div>
+  <div class="card" style="padding:0;margin-top:0">
+    <p style="font-size:13px;color:#888;margin-bottom:12px;line-height:1.5;padding:0 4px">
+      Connect this app to your Supabase project so orders are stored in the cloud and shared across all devices.
+    </p>
+    <div class="form-group">
+      <label for="supabaseUrl">Project URL</label>
+      <input type="url" id="supabaseUrl" placeholder="https://gzzlokhsibryyflddikh.supabase.co" autocomplete="off">
+      <div class="hint">Supabase dashboard → Settings → API → Project URL</div>
+    </div>
+    <div class="form-group">
+      <label for="supabaseAnonKey">Anon API Key</label>
+      <input type="password" id="supabaseAnonKey" placeholder="eyJhbG...NiIs..." autocomplete="off">
+      <div class="hint">Supabase dashboard → Settings → API → Anon public key</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;padding:0 4px">
+      <button class="btn btn-primary" onclick="saveSupabaseConnection()" style="flex:1">💾 Save & Connect</button>
+      <button class="btn btn-secondary" onclick="testSupabaseConnection()" style="flex:0 0 auto">🔌 Test</button>
+    </div>
+    <div id="testResult" style="margin-top:10px;font-size:13px;padding:0 4px"></div>
+  </div>
+
+  <div class="section-title"><span class="emoji">💬</span> Telegram Channel — @f2d_order</div>
+  <div class="card" style="padding:0;margin-top:0">
+    <div class="warning-box" style="padding:0 4px;margin:0 0 12px">
+      <strong>Your bot is already admin of <code>@f2d_order</code>.</strong>
+      Save the bot token below and set Chat ID to <code>@f2d_order</code> — orders will post there automatically.
+    </div>
+    <div class="form-group" style="padding:0 4px">
+      <label for="botToken">Bot Token (from @BotFather)</label>
+      <input type="password" id="botToken" placeholder="123456:ABC-DEF1234ghIkl..." autocomplete="off">
+      <div class="hint">Get from @BotFather. Stored in Supabase (server-side), not in the browser.</div>
+    </div>
+    <div class="form-group" style="padding:0 4px">
+      <label for="chatId">Chat ID / Channel</label>
+      <input type="text" id="chatId" placeholder="@f2d_order" value="@f2d_order" autocomplete="off">
+      <div class="hint">Use <code>@f2d_order</code> or the numeric ID starting with <code>-100</code>.</div>
+    </div>
+    <div class="form-group" style="padding:0 4px">
+      <div class="toggle-row" style="padding:0">
+        <div>
+          <div class="toggle-label">Send order notifications</div>
+          <div class="toggle-desc">When enabled, each saved order is sent to the Telegram channel.</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="telegramEnabled" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="testTelegram()" style="width:100%;margin-top:6px">🧪 Test Notification to @f2d_order</button>
+    <div id="telegramTestResult" style="margin-top:8px;font-size:13px;padding:0 4px"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title"><span class="emoji">🏪</span> Store Settings</div>
+  <div class="card" style="padding:0;margin-top:0">
+    <div class="form-group" style="padding:0 4px">
+      <label for="storeName">Store Name</label>
+      <input type="text" id="storeName" placeholder="Food2Door" autocomplete="off">
+    </div>
+    <div class="form-group" style="padding:0 4px">
+      <label for="storePhone">Store Phone</label>
+      <input type="text" id="storePhone" placeholder="+60 12-345 6789" autocomplete="off">
+    </div>
+    <div class="form-row" style="padding:0 4px">
+      <div class="form-group">
+        <label for="deliveryFee">Default Delivery Fee (MYR)</label>
+        <input type="number" id="deliveryFee" value="2.99" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label for="freeDeliveryThreshold">Free Delivery Over (MYR)</label>
+        <input type="number" id="freeDeliveryThreshold" value="35.00" min="0" step="0.01">
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title"><span class="emoji">🏷️</span> Order Statuses</div>
+  <div class="card" style="padding:0;margin-top:0">
+    <div class="form-group" style="padding:0 4px">
+      <label for="statusNew">New Order Badge</label>
+      <select id="statusNew">
+        <option value="New">New</option>
+        <option value="Pending">Pending</option>
+        <option value="Received">Received</option>
+      </select>
+    </div>
+    <div class="form-group" style="padding:0 4px">
+      <label for="statusPrep">Preparation Badge</label>
+      <select id="statusPrep">
+        <option value="Prep">Prep</option>
+        <option value="Kitchen">Kitchen</option>
+        <option value="Cooking">Cooking</option>
+      </select>
+    </div>
+    <div class="form-group" style="padding:0 4px">
+      <label for="statusOut">Out for Delivery Badge</label>
+      <select id="statusOut">
+        <option value="Out">Out</option>
+        <option value="En Route">En Route</option>
+        <option value="Driver">Driver</option>
+      </select>
+    </div>
+    <div class="form-group" style="padding:0 4px">
+      <label for="statusDone">Completed Badge</label>
+      <select id="statusDone">
+        <option value="Done">Done</option>
+        <option value="Completed">Completed</option>
+        <option value="Delivered">Delivered</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title"><span class="emoji">🗄️</span> Data Management</div>
+  <div class="card" style="padding:0;margin-top:0">
+    <div class="data-stat" style="padding:0 4px">
+      <div>
+        <div class="label">Today's Orders</div>
+        <div class="desc">Orders from today</div>
+      </div>
+      <span style="font-weight:800;color:#141652;font-size:16px" id="todayCount">0</span>
+    </div>
+    <div class="data-stat" style="padding:0 4px">
+      <div>
+        <div class="label">Total Orders (All Time)</div>
+        <div class="desc">Stored in Supabase</div>
+      </div>
+      <span class="value" id="totalCount">0</span>
+    </div>
+    <div class="data-stat" style="padding:0 4px">
+      <div>
+        <div class="label">Total Revenue (All Time)</div>
+        <div class="desc">Sum of all orders</div>
+      </div>
+      <span class="value" id="totalRevenue">RM 0.00</span>
+    </div>
+    <div class="warning-box" style="margin-top:12px;padding:0 4px">
+      All order data is stored in your Supabase project — accessible from any device, any browser. No more lost data.
+    </div>
+  </div>
+
+  <div class="form-actions" style="margin-top:0;padding:0 4px">
+    <button class="btn btn-primary" onclick="saveAllSettings()">💾 Save All Settings</button>
+    <button class="btn btn-secondary" onclick="resetToSaved()">↻ Reset to Saved</button>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title"><span class="emoji">🧹</span> Dev Tools — Test Data</div>
+  <div class="card" style="padding:0;margin-top:0">
+    <div class="data-stat" style="padding:0 4px">
+      <div>
+        <div class="label">Delete All Test Data</div>
+        <div class="desc">Deletes all orders taken by "Dev (Test)" with one click</div>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="deleteTestData()" style="width:100%;margin-top:12px">🗑 Delete All "Dev (Test)" Orders</button>
+    <div id="deleteTestResult" style="margin-top:8px;font-size:13px;padding:0 4px"></div>
+  </div>
+
+  <div class="nav-bar-outer">
+    <div class="nav-bar-inner">
+    <a href="/" class="nav-btn">🏠 Take Order</a>
+    <a href="/all" class="nav-btn">📋 All Orders</a>
+    <a href="/report" class="nav-btn">📈 Month Report</a>
+    <a href="/settings" class="nav-btn active">⚙️ Settings</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+"use strict";
+
+var SUPABASE_URL='https://gzzlokhsibryyflddikh.supabase.co';
+
+var supabaseUrl='https://gzzlokhsibryyflddikh.supabase.co';
+var supabaseAnonKey='sb_publishable_5y_iBXJ4OTMSFP9l0QcWsg_hczQnD2I';
+
+// Supabase REST API helper - no CDN dependency
+function supabaseFetch(path, options){
+  var url = supabaseUrl + '/rest/v1' + path;
+  var headers = {
+    'apikey': supabaseAnonKey,
+    'Authorization': 'Bearer ' + supabaseAnonKey,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+  if(options && options.method){
+    Object.assign(headers, options.headers || {});
+  }
+  return fetch(url, {
+    method: options ? options.method : 'GET',
+    headers: headers,
+    body: options && options.body ? JSON.stringify(options.body) : undefined
+  }).then(function(r){
+    return r.json().then(function(data){
+      if(!r.ok){
+        var errMsg = data.error ? data.error.message : 'Request failed (HTTP ' + r.status + ')';
+        return Promise.reject({message: errMsg, status: r.status});
+      }
+      return data;
+    });
+  });
+}
+
+// Supabase-style API wrappers
+var supabase = {
+  from: function(tableName){
+    var tablePath = '/' + tableName;
+    return {
+      select: function(columns){
+        var path = tablePath + '?select=' + (columns || '*');
+        return {
+          gte: function(col, val){ path += '&' + col + '=gte.' + encodeURIComponent(val); return this; },
+          lte: function(col, val){ path += '&' + col + '=lte.' + encodeURIComponent(val); return this; },
+          eq: function(col, val){ path += '&' + col + '=eq.' + encodeURIComponent(val); return this; },
+          order: function(col, opts){ path += '&order=' + col + ':' + (opts && opts.ascending === false ? 'desc' : 'asc'); return this; },
+          limit: function(n){ path += '&limit=' + n; return this; },
+          single: function(){ 
+            return supabaseFetch(path).then(function(d){ 
+              return {data: d && d.length > 0 ? d[0] : null, error: d && d.length === 0 ? {message:'Not found'} : null}; 
+            }); 
+          },
+          then: function(resolve, reject){ 
+            return supabaseFetch(path)
+              .then(function(d){ resolve({data: d, error: null}); })
+              .catch(function(e){ reject(e); });
+          }
+        };
+      },
+      insert: function(rows){
+        return supabaseFetch(tablePath, {method: 'POST', body: rows})
+          .then(function(d){ return {data: d, error: null}; })
+          .catch(function(e){ return Promise.reject(e); });
+      },
+      update: function(data){
+        return {
+          eq: function(col, val){
+            var path = tablePath;
+            var body = {};
+            body[col] = val;
+            for(var k in data) body[k] = data[k];
+            return supabaseFetch(path, {method: 'PATCH', body: body})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          },
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      },
+      delete: function(){
+        return { 
+          match: function(data){
+            var conditions = [];
+            for(var k in data) conditions.push(k + '=eq.' + encodeURIComponent(data[k]));
+            var path = tablePath + '?' + conditions.join('&');
+            return supabaseFetch(path, {method: 'DELETE'})
+              .then(function(d){ return {data: d, error: null}; })
+              .catch(function(e){ return Promise.reject(e); });
+          }
+        };
+      }
+    };
+  }
+};
+
+console.log('Supabase REST API ready');
+
+function esc(s){var d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function getDefaultSettings(){
+  return{
+    storeName:'Food2Door',storePhone:'',deliveryFee:'2.99',freeDeliveryThreshold:'35.00',
+    telegramEnabled:true,botToken:'',chatId:'@f2d_order',
+    statusNew:'New',statusPrep:'Prep',statusOut:'Out',statusDone:'Done'
+  };
+}
+
+function showFlash(msg,type){
+  var existing=document.querySelector('.flash');
+  if(existing)existing.remove();
+  var el=document.createElement('div');
+  el.className='flash '+type;
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},3000);
+}
+
+function loadSettings(){
+  // Always persist Telegram config to localStorage for fast access
+  function persistTgToLS(){
+    try{
+      supabase.from('settings').select('value').eq('key','app').single()
+        .then(function(r){
+          if(!r.error&&r.data&&r.data.value){
+            var v=r.data.value;
+            try{localStorage.setItem('fd_bot_token',v.bot_token||'');}catch(e){}
+            try{localStorage.setItem('fd_chat_id',v.chat_id||'@f2d_order');}catch(e){}
+            try{localStorage.setItem('fd_telegram_enabled',(v.telegram_enabled!==false)?'true':'false');}catch(e){}
+          }
+        })
+        .catch(function(){});
+    }catch(e){}
+  }
+
+  if(!supabase){
+    var saved={};
+    try{saved=JSON.parse(localStorage.getItem(LS_SETTINGS_KEY)||'null')||{};}catch(e){}
+    var defaults=getDefaultSettings();
+    var s={};
+    for(var k in defaults)s[k]=(k in saved)?saved[k]:defaults[k];
+    setUI(s);
+    return;
+  }
+
+  supabase.from('settings').select('value').eq('key','app').single()
+    .then(function(resp){
+      var defaults=getDefaultSettings();
+      if(resp.error||!resp.data){setUI(defaults);persistTgToLS();return;}
+      var s=resp.data.value;
+      var ui={
+        storeName:s.store_name||defaults.storeName,
+        storePhone:s.store_phone||defaults.storePhone,
+        deliveryFee:s.delivery_fee||defaults.deliveryFee,
+        freeDeliveryThreshold:s.free_delivery_threshold||defaults.freeDeliveryThreshold,
+        telegramEnabled:(s.telegram_enabled!==false),
+        botToken:s.bot_token||'',
+        chatId:s.chat_id||defaults.chatId,
+        statusNew:s.status_new||defaults.statusNew,
+        statusPrep:s.status_prep||defaults.statusPrep,
+        statusOut:s.status_out||defaults.statusOut,
+        statusDone:s.status_done||defaults.statusDone
+      };
+      setUI(ui);
+    })
+    .catch(function(){loadSettingsFallback();});
+}
+
+function loadSettingsFallback(){
+  var saved={};
+  try{saved=JSON.parse(localStorage.getItem(LS_SETTINGS_KEY)||'null')||{};}catch(e){}
+  var defaults=getDefaultSettings();
+  var s={};
+  for(var k in defaults)s[k]=(k in saved)?saved[k]:defaults[k];
+  setUI(s);
+}
+
+function setUI(s){
+  document.getElementById('storeName').value=s.storeName;
+  document.getElementById('storePhone').value=s.storePhone;
+  document.getElementById('deliveryFee').value=s.deliveryFee;
+  document.getElementById('freeDeliveryThreshold').value=s.freeDeliveryThreshold;
+  document.getElementById('telegramEnabled').checked=s.telegramEnabled;
+  document.getElementById('botToken').value=s.botToken;
+  document.getElementById('chatId').value=s.chatId;
+  document.getElementById('statusNew').value=s.statusNew;
+  document.getElementById('statusPrep').value=s.statusPrep;
+  document.getElementById('statusOut').value=s.statusOut;
+  document.getElementById('statusDone').value=s.statusDone;
+}
+
+function saveAllSettings(){
+  var s={
+    storeName:document.getElementById('storeName').value.trim(),
+    storePhone:document.getElementById('storePhone').value.trim(),
+    deliveryFee:document.getElementById('deliveryFee').value,
+    freeDeliveryThreshold:document.getElementById('freeDeliveryThreshold').value,
+    telegramEnabled:document.getElementById('telegramEnabled').checked,
+    botToken:document.getElementById('botToken').value.trim(),
+    chatId:document.getElementById('chatId').value.trim(),
+    statusNew:document.getElementById('statusNew').value,
+    statusPrep:document.getElementById('statusPrep').value,
+    statusOut:document.getElementById('statusOut').value,
+    statusDone:document.getElementById('statusDone').value
+  };
+
+  if(!supabase){
+    try{localStorage.setItem(LS_SETTINGS_KEY,JSON.stringify(s));}catch(e){}
+    try{localStorage.setItem('fd_bot_token',s.botToken||'');}catch(e){}
+    try{localStorage.setItem('fd_chat_id',s.chatId||'');}catch(e){}
+    try{localStorage.setItem('fd_telegram_enabled',s.telegramEnabled?'true':'false');}catch(e){}
+    showFlash('✅ Settings saved locally (connect Supabase to sync everywhere)','info');
+    return;
+  }
+
+  supabase.from('settings').update({value:s}).eq('key','app')
+    .then(function(resp){
+      if(resp.error)throw resp.error;
+      showFlash('✅ All settings saved to Supabase!','success');
+      refreshDataStats();
+      try{localStorage.setItem('fd_bot_token',s.botToken||'');}catch(e){}
+      try{localStorage.setItem('fd_chat_id',s.chatId||'');}catch(e){}
+      try{localStorage.setItem('fd_telegram_enabled',s.telegramEnabled?'true':'false');}catch(e){}
+    })
+    .catch(function(err){
+      try{localStorage.setItem(LS_SETTINGS_KEY,JSON.stringify(s));}catch(e){}
+      showFlash('⚠️ Saved locally (Supabase error: '+(err.message||'unknown')+')','info');
+    });
+}
+
+function saveSupabaseConnection(){
+  var url=document.getElementById('supabaseUrl').value.trim();
+  var key=document.getElementById('supabaseAnonKey').value.trim();
+  var resultEl=document.getElementById('testResult');
+
+  if(!url||!key){
+    resultEl.innerHTML='<span style="color:#dc2626">Please enter both Project URL and Anon Key.</span>';
+    return;
+  }
+
+  try{localStorage.setItem('fd_supabase_url',url);}catch(e){}
+  try{localStorage.setItem('fd_supabase_anon_key',key);}catch(e){}
+
+  resultEl.innerHTML='<span style="color:#888">Testing connection...</span>';
+
+  var client=null;
+  try{
+    if(window.supabase&&typeof window.supabase.createClient==='function'){
+      client=window.supabase.createClient(url,key);
+    }
+  }catch(e){}
+
+  if(!client){
+    resultEl.innerHTML='<span style="color:#dc2626">Supabase client not available.</span>';
+    return;
+  }
+
+  supabase=client;
+  try{localStorage.setItem('fd_supabase_url',url);}catch(e){}
+  try{localStorage.setItem('fd_supabase_anon_key',key);}catch(e){}
+
+  client.from('settings').select('key').limit(1)
+    .then(function(resp){
+      if(resp.error)throw resp.error;
+      resultEl.innerHTML='<span style="color:#065f46">✅ Connected! Supabase is reachable.</span>';
+      supabase=client;
+      loadSettings();
+      refreshDataStats();
+    })
+    .catch(function(err){
+      resultEl.innerHTML='<span style="color:#dc2626">❌ Connection failed: '+(err.message||'unknown')+'</span>';
+    });
+}
+
+function testSupabaseConnection(){
+  saveSupabaseConnection();
+}
+
+function testTelegram(){
+  var token=document.getElementById('botToken').value.trim();
+  var chatId=document.getElementById('chatId').value.trim();
+  var resultEl=document.getElementById('telegramTestResult');
+
+  if(!token||!chatId){
+    resultEl.innerHTML='<span style="color:#dc2626">Please set both Bot Token and Chat ID.</span>';
+    return;
+  }
+
+  if(!supabase){
+    resultEl.innerHTML='<span style="color:#dc2626">Supabase not connected. Save the connection first.</span>';
+    return;
+  }
+
+  resultEl.innerHTML='<span style="color:#888">Sending test message to '+esc(chatId)+'...</span>';
+
+  var testMsg='<b>Food2Door Test</b>\n\nYour bot is configured correctly!\nChannel: '+escHtml(chatId)+'\n\nThis is a test notification.';
+
+  fetch('https://api.telegram.org/bot'+encodeURIComponent(token)+'/sendMessage',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:chatId,text:testMsg,parse_mode:'HTML'})
+  })
+  .then(function(res){return res.json();})
+  .then(function(data){
+    if(data.ok){
+      resultEl.innerHTML='<span style="color:#065f46">✅ Test message sent to '+esc(chatId)+' successfully!</span>';
+    }else{
+      resultEl.innerHTML='<span style="color:#dc2626">❌ Telegram error: '+(data.description||'Unknown error')+'</span>';
+    }
+  })
+  .catch(function(err){
+    resultEl.innerHTML='<span style="color:#dc2626">❌ Network error: '+(err.message||'unknown')+'</span>';
+  });
+}
+
+function deleteTestData(){
+  var resultEl=document.getElementById('deleteTestResult');
+  if(!resultEl){return;}
+  if(!supabase){
+    resultEl.innerHTML='<span style="color:#dc2626">Supabase not connected. Save the connection first.</span>';
+    return;
+  }
+  resultEl.innerHTML='<span style="color:#888">Deleting all "Dev (Test)" orders...</span>';
+  supabase.from('orders').delete().eq('taken_by','Dev (Test)')
+    .then(function(resp){
+      if(resp.error)throw resp.error;
+      var count=resp.count||0;
+      resultEl.innerHTML='<span style="color:#065f46">✅ Deleted '+count+' order(s) taken by "Dev (Test)".</span>';
+      refreshDataStats();
+      showFlash('🗑 '+count+' test order(s) deleted','success');
+    })
+    .catch(function(err){
+      resultEl.innerHTML='<span style="color:#dc2626">❌ Error: '+(err.message||'unknown')+'</span>';
+    });
+}
+
+function resetToSaved(){
+  loadSettings();
+  showFlash('↻ Reset to saved settings','info');
+}
+
+function refreshDataStats(){
+  var today=new Date().toISOString().slice(0,10);
+
+  if(!supabase){
+    var all=[];
+    try{all=JSON.parse(localStorage.getItem('fd_orders_fallback')||'[]');}catch(e){}
+    var todayOrders=[];
+    for(var i=0;i<all.length;i++){
+      if(all[i].created_at&&all[i].created_at.indexOf(today)===0)todayOrders.push(all[i]);
+    }
+    document.getElementById('todayCount').textContent=todayOrders.length;
+    document.getElementById('totalCount').textContent=all.length;
+    var totalRev=0;
+    for(var j=0;j<all.length;j++)totalRev+=parseFloat(all[j].total||0);
+    document.getElementById('totalRevenue').textContent='RM '+totalRev.toFixed(2);
+    return;
+  }
+
+  supabase.from('orders').select('id,total,created_at')
+    .then(function(resp){
+      if(resp.error)throw resp.error;
+      var orders=resp.data||[];
+      var todayOrders=[];
+      for(var i=0;i<orders.length;i++){
+        if(orders[i].created_at&&orders[i].created_at.indexOf(today)===0)todayOrders.push(orders[i]);
+      }
+      document.getElementById('todayCount').textContent=todayOrders.length;
+      document.getElementById('totalCount').textContent=orders.length;
+      var totalRev=0;
+      for(var j=0;j<orders.length;j++)totalRev+=parseFloat(orders[j].total||0);
+      document.getElementById('totalRevenue').textContent='RM '+totalRev.toLocaleString('en-MY',{minimumFractionDigits:2});
+    })
+    .catch(function(){
+      document.getElementById('todayCount').textContent='0';
+      document.getElementById('totalCount').textContent='0';
+      document.getElementById('totalRevenue').textContent='RM 0.00';
+    });
+}
+
+window.saveAllSettings=saveAllSettings;
+window.saveSupabaseConnection=saveSupabaseConnection;
+window.testSupabaseConnection=testSupabaseConnection;
+window.testTelegram=testTelegram;
+window.resetToSaved=resetToSaved;
+window.deleteTestData=deleteTestData;
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',function(){
+    loadSettings();
+    refreshDataStats();
+  });
+}else{
+  loadSettings();
+  refreshDataStats();
+}
+})();
+</script>
+</body>
+</html>
